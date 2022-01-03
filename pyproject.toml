@@ -4,7 +4,7 @@ authors = [{name = "Adam Hill", email = "adam@adamghill.com"}]
 dynamic = ["version", "description"]
 
 [tool.poetry]
-name = "minestrone"
+name = "minestrone-soup"
 version = "0.1.0"
 description = "Search, modify, and parse messy HTML with ease."
 authors = ["adamghill <adam@adamghill.com>"]
@@ -14,6 +14,7 @@ repository = "https://github.com/adamghill/minestrone/"
 homepage = "https://github.com/adamghill/minestrone/"
 documentation = "http://minestrone.readthedocs.io/"
 keywords = ["python", "html", "beautifulsoup"]
+packages = [{ include = "minestrone" }]
 
 [tool.poetry.dependencies]
 python = "^3.6.2"
@@ -34,6 +35,8 @@ isort = "^5.10.1"
 sphinx-autobuild = "^2021.3.14"
 types-beautifulsoup4 = "^4.10.5"
 mypy = "^0.930"
+coverage = {extras = ["toml"], version = "^6.2"}
+pytest-cov = "^3.0.0"
 
 [tool.poetry.extras]
 docs = ["Sphinx", "linkify-it-py", "myst-parser", "furo", "sphinx-copybutton"]
@@ -55,8 +58,18 @@ testpaths = [
 ignore = "E203,E266,H106,H904"
 max-line-length = 88
 
+[tool.coverage.run]
+branch = true
+parallel = true
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+skip_empty = true
+
 [tool.poe.tasks]
-t = { cmd = "pytest", help = "Run tests" }
+t = { cmd = "pytest --cov=minestrone", help = "Run tests" }
+r = { cmd = "coverage report", help = "Show coverage report" }
 my = { cmd = "mypy .", help = "Run mypy" }
 b = { cmd = "black . --check --quiet", help = "Run black" }
 i = { cmd = "isort . --check --quiet", help = "Run isort" }
