@@ -1,5 +1,7 @@
 import re
 
+import pytest
+
 # Test that `HTML` is imported from the astrisk
 from minestrone import *
 
@@ -58,3 +60,24 @@ def test_html_fragments():
     actual = str(html)
 
     assert actual == expected
+
+
+def test_html_html_strings(html_fragment):
+    html = HTML(html_fragment)
+
+    assert str(html_fragment) == str(html)
+
+
+def test_html_html_soups(html_fragment):
+    html = HTML(html_fragment)
+
+    assert html_fragment._soup == html._soup
+
+
+def test_html_wrong_type():
+    with pytest.raises(Exception):
+        HTML(1)
+
+
+def test_html_repr(html_fragment):
+    assert repr(html_fragment) == str(html_fragment)

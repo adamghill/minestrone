@@ -31,3 +31,15 @@ def test_root_element_with_comment():
     root_element = html.root_element
     assert isinstance(root_element, Element)
     assert root_element.name == "p"
+
+
+def test_root_element_missing():
+    html = HTML(
+        """
+<!-- -->
+testing
+    """
+    )
+
+    root_element = html.root_element
+    assert root_element is None

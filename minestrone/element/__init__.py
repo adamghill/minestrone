@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Dict, Optional, Union
+from typing import Dict, Optional, Sequence, Union
 
 import bs4
 
@@ -192,6 +192,14 @@ class Element(Content):
         return self._self.name
 
     @property
+    def id(self) -> Optional[str]:
+        """
+        Gets the id of the `Element`.
+        """
+
+        return self._self.attrs.get("id")
+
+    @property
     def attributes(self) -> Dict:
         """
         Attributes of the `Element`.
@@ -214,7 +222,11 @@ class Element(Content):
         for k, v in attrs.items():
             if k == "class":
                 if isinstance(v, str):
-                    attrs[k] = attrs[k].split(" ")
+                    attrs[k] = v.split(" ")
+                elif isinstance(v, Sequence):
+                    attrs[k] = list(v)
+                else:
+                    raise Exception("Invalid type for CSS classes")
 
         self._self.attrs = attrs
 

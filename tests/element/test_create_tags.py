@@ -34,6 +34,26 @@ def test_prepend(html_fragment: HTML):
     assert actual == expected
 
 
+def test_text_str(html_fragment: HTML):
+    elsie = next(html_fragment.query("a#elsie"))
+    text = elsie.prepend(text="test prepend text content")
+
+    expected = "test prepend text content"
+    actual = str(text)
+
+    assert actual == expected
+
+
+def test_text_repr(html_fragment: HTML):
+    elsie = next(html_fragment.query("a#elsie"))
+    text = elsie.prepend(text="test prepend text content")
+
+    expected = "test prepend text content"
+    actual = repr(text)
+
+    assert actual == expected
+
+
 def test_prepend_text(html_fragment: HTML):
     elsie = next(html_fragment.query("a#elsie"))
     elsie.prepend(text="test prepend text content")

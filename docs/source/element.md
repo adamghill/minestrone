@@ -13,6 +13,17 @@ span_element = html.root_element
 assert span_element.name == "span"
 ```
 
+## id
+
+Gets the id of the `Element`.
+
+```python
+html = HTML("<span id='dormouse'>Dormouse</span>")
+span_element = html.root_element
+
+assert span_element.id == "dormouse"
+```
+
 ## attributes
 
 ### Get attributes
