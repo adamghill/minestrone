@@ -40,3 +40,11 @@ querying
 element
 editing
 ```
+
+```{toctree}
+:maxdepth: 2
+:hidden:
+
+GitHub <https://github.com/adamghill/minestrone>
+Sponsor <https://github.com/sponsors/adamghill>
+```
