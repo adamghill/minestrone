@@ -69,7 +69,7 @@ assert str(lacie_link) == '<a href="http://example.com/lacie" class="sister" id=
 
 ## query_to_list
 
-Exactly the same as [query](querying.md#query) except it returns a list of [`Element`](element.md) items instead of a generator. This is sometimes more useful than the `uery` above, but it can take more time to parse and more memory to store the data if the HTML document is large.
+Exactly the same as [query](querying.md#query) except it returns a list of [`Element`](element.md) items instead of a generator. This is sometimes more useful than the `query` above, but it can take more time to parse and more memory to store the data if the HTML document is large.
 
 ```python
 from minestrone import HTML
