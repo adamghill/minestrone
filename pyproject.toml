@@ -4,8 +4,8 @@ authors = [{name = "Adam Hill", email = "adam@adamghill.com"}]
 dynamic = ["version", "description"]
 
 [tool.poetry]
-name = "minestrone"
-version = "0.2.0"
+name = "minestrone-soup"
+version = "0.1.1"
 description = "Search, modify, and parse messy HTML with ease."
 authors = ["adamghill <adam@adamghill.com>"]
 license = "MIT"
