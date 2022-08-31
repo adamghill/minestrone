@@ -1,13 +1,12 @@
-# Configuration file for the Sphinx documentation builder.
-
-# -- Project information
+import toml
 
 project = "minestrone"
 copyright = "2021, Adam Hill"
 author = "Adam Hill"
 
-release = "0.1"
-version = "0.1.0"
+pyproject = toml.load("../../pyproject.toml")
+version = pyproject["tool"]["poetry"]["version"]
+release = version
 
 # -- General configuration
 
