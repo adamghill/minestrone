@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Dict, Optional, Sequence, Union
+from typing import Dict, Generator, List, Optional, Sequence, Union
 
 import bs4
 
@@ -231,8 +231,33 @@ class Element(Content):
         self._self.attrs = attrs
 
     @property
-    def classes(self):
-        return self._self.attrs.get("class", [])
+    def classes(self) -> List[str]:
+        """
+        Return all classes of the element.
+        """
+
+        return list(self._self.attrs.get("class", []))
+
+    @property
+    def children(self) -> Generator["Element", None, None]:
+        """
+        Returns an iterator of `Element`s of the children of the element.
+        """
+
+        for child in self._self.children:
+            if isinstance(child, bs4.element.Tag):
+                yield Element.convert_from_tag(self._soup, child)
+
+    @property
+    def parent(self) -> Optional["Element"]:
+        """
+        Returns the parent `Element` of the element.
+        """
+
+        if self._self.parent:
+            return Element.convert_from_tag(self._soup, self._self.parent)
+
+        return None
 
     @property
     def text(self) -> Optional[str]:

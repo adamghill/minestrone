@@ -1,7 +1,7 @@
 import bs4
 import pytest
 
-from minestrone import Element
+from minestrone import HTML, Element
 
 
 def test_get_text(html_doc):
@@ -157,6 +157,48 @@ def test_element_classes_from_css_kwarg():
     )
 
     assert span.classes == ["test-class1", "test-class2"]
+
+
+def test_element_classes_empty():
+    span = Element.create("span")
+
+    assert span.classes == []
+
+
+def test_element_children(html_doc):
+    ul = next(html_doc.query("ul"))
+
+    assert len(list(ul.children)) == 3
+
+    # get generator so next() will work to get all children
+    children = ul.children
+
+    first_li = next(children)
+    elsie = next(first_li.children)
+    assert elsie.id == "elsie"
+    assert len(list(elsie.children)) == 0
+
+    second_li = next(children)
+    lacie = next(second_li.children)
+    assert lacie.id == "lacie"
+
+    third_li = next(children)
+    tillie = next(third_li.children)
+    assert tillie.id == "tillie"
+
+
+def test_element_parent(html_doc):
+    elsie = next(html_doc.query("#elsie"))
+
+    assert elsie.parent
+    assert elsie.parent.name == "li"
+    assert elsie.parent.parent.name == "ul"
+
+
+def test_element_parent_none(html_doc: HTML):
+    assert html_doc.root_element
+    assert html_doc.root_element.parent
+    assert html_doc.root_element.parent.parent is None
 
 
 def test_create_without_soup():
