@@ -2,6 +2,7 @@
 name = "minestrone"
 authors = [{name = "Adam Hill", email = "adam@adamghill.com"}]
 dynamic = ["version", "description"]
+license = { file = "LICENSE }
 
 [tool.poetry]
 name = "minestrone"
