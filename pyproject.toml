@@ -5,7 +5,7 @@ dynamic = ["version", "description"]
 
 [tool.poetry]
 name = "minestrone"
-version = "0.3.0"
+version = "0.4.0"
 description = "Search, modify, and parse messy HTML with ease."
 authors = ["adamghill <adam@adamghill.com>"]
 license = "MIT"
