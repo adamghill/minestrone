@@ -4,12 +4,22 @@ from minestrone import HTML
 
 
 @pytest.fixture
-def html_doc() -> HTML:
-    with open("tests/samples/html_doc.html", "r") as f:
-        return HTML(f.read())
+def html_doc(html_doc_str) -> HTML:
+    return HTML(html_doc_str)
 
 
 @pytest.fixture
-def html_fragment() -> HTML:
+def html_doc_str() -> str:
+    with open("tests/samples/html_doc.html", "r") as f:
+        return f.read()
+
+
+@pytest.fixture
+def html_fragment(html_fragment_str) -> HTML:
+    return HTML(html_fragment_str)
+
+
+@pytest.fixture
+def html_fragment_str() -> str:
     with open("tests/samples/html_fragment.html", "r") as f:
-        return HTML(f.read())
+        return f.read()
