@@ -2,6 +2,7 @@
 minestrone - Search, modify, and parse messy HTML with ease.
 """
 
+from enum import Enum
 from typing import Iterator, List, Optional, Union
 
 import bs4
@@ -13,17 +14,38 @@ __all__ = [
     "HTML",
     "Element",
     "Text",
+    "Parser",
 ]
 
 
+class Parser(Enum):
+    HTML = "html.parser"
+    LXML = "lxml"
+    HTML5 = "html5lib"
+
+
 class HTML:
-    def __init__(self, html: Union[str, "HTML"]):
-        if isinstance(html, str):
-            self._soup = bs4.BeautifulSoup(html, features="html.parser")
+    encoding = "utf-8"
+
+    def __init__(
+        self,
+        html: Union[str, "HTML"],
+        parser: Parser = Parser.HTML,
+        encoding: str = None,
+    ):
+        if isinstance(html, str) or isinstance(html, bytes):
+            self._soup = bs4.BeautifulSoup(
+                html, features=parser.value, from_encoding=encoding
+            )
         elif isinstance(html, HTML):
             self._soup = html._soup
         else:
             raise Exception("Unknown type to init HTML")
+
+        if encoding:
+            self.encoding = encoding
+        else:
+            self.encoding = self._soup.original_encoding
 
     def query(self, selector: str) -> Iterator[Element]:
         """

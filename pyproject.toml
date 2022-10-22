@@ -23,6 +23,10 @@ keywords = ["python", "html", "beautifulsoup"]
 python = "^3.6.2"
 beautifulsoup4 = "^4.10.0"
 
+# optional parsers
+lxml = { version = "4.9.1", optional = true }
+html5lib = { version = "1.1", optional = true }
+
 # docs
 Sphinx = { version = "^4.3.2", optional = true }
 linkify-it-py = { version = "^1.0.3", optional = true }
@@ -45,6 +49,8 @@ pytest-cov = "^3.0.0"
 
 [tool.poetry.extras]
 docs = ["Sphinx", "linkify-it-py", "myst-parser", "furo", "sphinx-copybutton", "toml", "attrs"]
+lxml = ["lxml"]
+html5 = ["html5lib"]
 
 [tool.black]
 line-length = 88

@@ -2,7 +2,7 @@ import re
 
 import pytest
 
-# Test that `HTML` is imported from the astrisk
+# Test that `HTML` is imported from the asterisk
 from minestrone import *
 
 
@@ -81,3 +81,53 @@ def test_html_wrong_type():
 
 def test_html_repr(html_fragment):
     assert repr(html_fragment) == str(html_fragment)
+
+
+def test_html_parser_fragment(html_fragment_str):
+    html_parsed_with_html = HTML(html_fragment_str, parser=Parser.HTML)
+    assert html_parsed_with_html
+
+    html_parsed_with_lxml = HTML(html_fragment_str, parser=Parser.LXML)
+    assert html_parsed_with_lxml
+
+    html_parsed_with_html5 = HTML(html_fragment_str, parser=Parser.HTML5)
+    assert html_parsed_with_html5
+
+
+def test_html_parser_fragment_html():
+    assert str(HTML("<span>dormouse", parser=Parser.HTML)) == "<span>dormouse</span>"
+
+
+def test_html_parser_fragment_lxml():
+    assert (
+        str(HTML("<span>dormouse", parser=Parser.LXML))
+        == "<html><body><span>dormouse</span></body></html>"
+    )
+
+
+def test_html_parser_fragment_html5():
+    assert (
+        str(HTML("<span>dormouse", parser=Parser.HTML5))
+        == "<html><head></head><body><span>dormouse</span></body></html>"
+    )
+
+
+def test_html_parser_doc(html_doc_str):
+    html_parsed_with_html = HTML(html_doc_str, parser=Parser.HTML)
+    assert html_parsed_with_html
+
+    html_parsed_with_lxml = HTML(html_doc_str, parser=Parser.LXML)
+    assert html_parsed_with_lxml
+
+    html_parsed_with_html5 = HTML(html_doc_str, parser=Parser.HTML5)
+    assert html_parsed_with_html5
+
+
+def test_html_encoding():
+    html = HTML(b"<h1>\xed\xe5\xec\xf9</h1>")
+    assert str(html) == "<h1>翴檛</h1>"
+    assert html.encoding == "big5"
+
+    html = HTML(b"<h1>\xed\xe5\xec\xf9</h1>", encoding="iso-8859-8")
+    assert str(html) == "<h1>םולש</h1>"
+    assert html.encoding == "iso-8859-8"
