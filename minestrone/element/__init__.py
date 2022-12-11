@@ -274,9 +274,11 @@ class Element(Content):
 
         For example:
         `<span>Hello World</span>` would return "Hello World"
+
+        `<h1><code>Hello</code> World</h1>` would return "<code>Hello</code> World"
         """
 
-        return self._self.string
+        return "".join([str(c) for c in self._self.contents])
 
     @text.setter
     def text(self, string: str) -> None:

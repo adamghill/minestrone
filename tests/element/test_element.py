@@ -13,6 +13,20 @@ def test_get_text(html_doc):
     assert actual == expected
 
 
+def test_get_text_with_tags():
+    html = HTML(
+        """
+        <h1><code>stuff in here</code> header</h1>
+"""
+    )
+    el = next(html.query("h1"))
+
+    expected = "<code>stuff in here</code> header"
+    actual = el.text
+
+    assert actual == expected
+
+
 def test_set_text(html_doc):
     tillie = next(html_doc.query("a#tillie"))
 
