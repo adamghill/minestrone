@@ -6,7 +6,7 @@ license = { file = "LICENSE" }
 
 [tool.poetry]
 name = "minestrone"
-version = "0.5.0"
+version = "0.5.1"
 description = "Search, modify, and parse messy HTML with ease."
 authors = ["adamghill <adam@adamghill.com>"]
 license = "MIT"
