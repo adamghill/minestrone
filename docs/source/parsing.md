@@ -82,6 +82,44 @@ assert str(HTML(html_bytes), encoding="iso-8859-8") == "<h1>םולש</h1>"
 assert HTML(html_bytes).encoding == "iso-8859-8"
 ```
 
+## prettify
+
+Returns a prettified version of the HTML.
+
+```python
+html = HTML("""
+<html>
+<head>
+<title>The Dormouse's Story</title>
+</head>
+<body>
+<h1>The Dormouse's Story</h1>
+
+<ul>
+<li><a href="http://example.com/elsie" class="sister" id="elsie">Elsie</a></li>
+<li><a href="http://example.com/lacie" class="sister" id="lacie">Lacie</a></li>
+</ul>
+</body>
+</html>
+""")
+
+assert html.prettify() == """
+<html>
+  <head>
+    <title>The Dormouse's Story</title>
+  </head>
+  <body>
+    <h1>The Dormouse's Story</h1>
+
+    <ul>
+      <li><a href="http://example.com/elsie" class="sister" id="elsie">Elsie</a></li>
+      <li><a href="http://example.com/lacie" class="sister" id="lacie">Lacie</a></li>
+    </ul>
+  </body>
+</html>"""
+```
+
+
 ## \_\_str\_\_
 
 Returns the `HTML` object as a string.

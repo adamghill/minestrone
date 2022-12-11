@@ -119,3 +119,21 @@ li_element = html.query("#li-1")
 
 assert li_element.parent.name == "ul"
 ```
+
+## prettify
+
+Returns a prettified version of the element.
+
+```python
+html = HTML("""
+<ul>
+<li id="li-1">1</li>
+</ul>
+""")
+li_element = html.query("#li-1")
+
+assert li_element.prettify() == """
+<ul>
+  <li id="li-1">1</li>
+</ul>"""
+```
