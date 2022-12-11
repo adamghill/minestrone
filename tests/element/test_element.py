@@ -256,3 +256,30 @@ def test_repr():
     )
 
     assert repr(span) == "<span></span>"
+
+
+def test_tag_string(html_doc):
+    ul = next(html_doc.query("ul"))
+
+    expected = "<ul>"
+    actual = ul.tag_string
+
+    assert actual == expected
+
+
+def test_tag_string_with_attributes(html_doc):
+    tillie = next(html_doc.query("a#tillie"))
+
+    expected = '<a href="https://dormouse.com/tillie" class="sister" id="tillie">'
+    actual = tillie.tag_string
+
+    assert actual == expected
+
+
+def test_closing_tag_string(html_doc):
+    tillie = next(html_doc.query("a#tillie"))
+
+    expected = "</a>"
+    actual = tillie.closing_tag_string
+
+    assert actual == expected

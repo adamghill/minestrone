@@ -280,6 +280,26 @@ class Element(Content):
 
         return "".join([str(c) for c in self._self.contents])
 
+    @property
+    def tag_string(self) -> str:
+        _attributes = self.attributes.items()
+
+        if not _attributes:
+            return f"<{self.name}>"
+
+        _tag_string = f"<{self.name}"
+
+        for key, value in _attributes:
+            _tag_string += f' {key}="{value}"'
+
+        _tag_string = f"{_tag_string}>"
+
+        return _tag_string
+
+    @property
+    def closing_tag_string(self) -> str:
+        return f"</{self.name}>"
+
     @text.setter
     def text(self, string: str) -> None:
         """
@@ -288,6 +308,12 @@ class Element(Content):
 
         self._self.clear()
         self._self.append(string.__class__(string))
+
+    def prettify(self, indent: int = 2, max_line_length: int = 88):
+        # Import here to avoid circular imports
+        from .prettifier import prettify_element
+
+        return prettify_element(self, indent, max_line_length)
 
     def __str__(self):
         return self._self.encode(formatter=UnsortedAttributes()).decode()

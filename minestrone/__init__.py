@@ -62,6 +62,30 @@ class HTML:
 
         return list(self.query(selector))
 
+    def prettify(
+        self, indent: int = 2, max_line_length: int = 88, use_bs4: bool = False
+    ) -> str:
+        """
+        Prettify HTML.
+
+        Args:
+            indent: How many spaces to indent for each level in the hierarchy. Defaults to 2.
+            max_line_length: How long the line can reach before indenting another level. Defaults to 88. If `None` it will never used.
+            use_bs4: Whether to use the `BeautifulSoup` `prettify` function or `minestrone`. Defaults to `False`.
+        """
+
+        if use_bs4:
+            return self._soup.prettify()
+
+        string = ""
+
+        for top_level_child in self._soup.contents:
+            if isinstance(top_level_child, bs4.element.Tag):
+                element = Element.convert_from_tag(self._soup, top_level_child)
+                string += element.prettify(indent, max_line_length)
+
+        return string
+
     @property
     def root_element(self) -> Optional[Element]:
         """
