@@ -74,6 +74,21 @@ def test_element_set_attributes_id():
     }
 
 
+def test_element_set_id():
+    span = Element.create(
+        "span",
+    )
+
+    assert span.id is None
+
+    span.id = "test-id"
+
+    assert span.id == "test-id"
+    assert span.attributes == {
+        "id": "test-id",
+    }
+
+
 def test_element_set_attributes_klass():
     span = Element.create(
         "span",
