@@ -199,6 +199,14 @@ class Element(Content):
 
         return self._self.attrs.get("id")
 
+    @id.setter
+    def id(self, string: str) -> None:
+        """
+        Sets the `id` of the `Element`.
+        """
+
+        self._self.attrs["id"] = string.__class__(string)
+
     @property
     def attributes(self) -> Dict:
         """

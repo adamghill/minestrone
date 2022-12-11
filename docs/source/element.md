@@ -15,12 +15,22 @@ assert span_element.name == "span"
 
 ## id
 
-Gets the id of the `Element`.
+### Get the id
 
 ```python
-html = HTML("<span id='dormouse'>Dormouse</span>")
+html = HTML('<span id="dormouse">Dormouse</span>')
 span_element = html.root_element
 
+assert span_element.id == "dormouse"
+```
+
+### Set the id
+
+```python
+html = HTML("<span>Dormouse</span>")
+span_element = html.root_element
+
+span_element.id = "dormouse"
 assert span_element.id == "dormouse"
 ```
 
@@ -29,7 +39,7 @@ assert span_element.id == "dormouse"
 ### Get attributes
 
 ```python
-html = HTML("<button class="mt-2 pb-2" disabled>Wake up</button>")
+html = HTML('<button class="mt-2 pb-2" disabled>Wake up</button>')
 button_element = html.root_element
 
 assert button_element.attributes == {"class": "mt-2 pb-2", "disabled": True}
@@ -50,7 +60,7 @@ assert str(button_element) == '<button class="mt-2 pb-2" disabled>Go back to sle
 Gets a list of classes for the element.
 
 ```python
-html = HTML("<button class="mt-2 pb-2">Wake Up</button>")
+html = HTML('<button class="mt-2 pb-2">Wake Up</button>')
 button_element = html.root_element
 
 assert button_element.classes == ["mt-2", "pb-2"]
