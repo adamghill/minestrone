@@ -103,20 +103,23 @@ html = HTML("""
 </html>
 """)
 
-assert html.prettify() == """
-<html>
+assert html.prettify() == """<html>
   <head>
     <title>The Dormouse's Story</title>
   </head>
   <body>
     <h1>The Dormouse's Story</h1>
-
     <ul>
-      <li><a href="http://example.com/elsie" class="sister" id="elsie">Elsie</a></li>
-      <li><a href="http://example.com/lacie" class="sister" id="lacie">Lacie</a></li>
+      <li>
+        <a href="http://example.com/elsie" class="sister" id="elsie">Elsie</a>
+      </li>
+      <li>
+        <a href="http://example.com/lacie" class="sister" id="lacie">Lacie</a>
+      </li>
     </ul>
   </body>
-</html>"""
+</html>
+"""
 ```
 
 

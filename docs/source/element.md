@@ -115,7 +115,7 @@ html = HTML("""
     <li id="li-1">1</li>
 </ul>
 """)
-li_element = html.query("#li-1")
+li_element = next(html.query("#li-1"))
 
 assert li_element.parent.name == "ul"
 ```
@@ -125,15 +125,12 @@ assert li_element.parent.name == "ul"
 Returns a prettified version of the element.
 
 ```python
-html = HTML("""
-<ul>
-<li id="li-1">1</li>
-</ul>
-""")
-li_element = html.query("#li-1")
+html = HTML('<ul><li id="li-1">1</li></ul>')
+ul_element = next(html.query("ul"))
 
-assert li_element.prettify() == """
+assert ul_element.prettify() == """
 <ul>
   <li id="li-1">1</li>
-</ul>"""
+</ul>
+"""
 ```

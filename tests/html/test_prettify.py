@@ -266,3 +266,63 @@ def test_html_doc_prettify(html_doc):
     actual = html_doc.prettify()
 
     eq(actual, expected)
+
+
+def test_html_prettify_doc_example():
+    expected = """<html>
+  <head>
+    <title>The Dormouse's Story</title>
+  </head>
+  <body>
+    <h1>The Dormouse's Story</h1>
+    <ul>
+      <li>
+        <a href="http://example.com/elsie" class="sister" id="elsie">Elsie</a>
+      </li>
+      <li>
+        <a href="http://example.com/lacie" class="sister" id="lacie">Lacie</a>
+      </li>
+    </ul>
+  </body>
+</html>
+"""
+
+    html = HTML(
+        """
+<html>
+<head>
+<title>The Dormouse's Story</title>
+</head>
+<body>
+<h1>The Dormouse's Story</h1>
+
+<ul>
+<li><a href="http://example.com/elsie" class="sister" id="elsie">Elsie</a></li>
+<li><a href="http://example.com/lacie" class="sister" id="lacie">Lacie</a></li>
+</ul>
+</body>
+</html>
+"""
+    )
+    actual = html.prettify()
+
+    eq(actual, expected)
+
+
+def test_html_prettify_doc_example_2():
+    expected = """<ul>
+  <li id="li-1">1</li>
+</ul>
+"""
+
+    html = HTML(
+        """
+<ul>
+<li id="li-1">1</li>
+</ul>"""
+    )
+    ul_element = next(html.query("ul"))
+    actual = ul_element.prettify()
+    print(actual)
+
+    assert actual == expected
