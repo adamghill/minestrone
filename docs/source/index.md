@@ -29,6 +29,7 @@ There are a few other libraries to interact with HTML in Python, but most are fo
 
 self
 installation
+changelog
 ```
 
 ```{toctree}
@@ -43,6 +44,7 @@ editing
 ```
 
 ```{toctree}
+:caption: Links
 :maxdepth: 2
 :hidden:
 
