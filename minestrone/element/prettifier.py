@@ -15,9 +15,7 @@ def prettify_element(
     def __decrease_spaces(_spaces):
         return " " * (len(_spaces) - indent)
 
-    string = f"\n{spaces}{element.tag_string}"
-
-    has_children = False
+    string = f"{spaces}{element.tag_string}"
 
     content_children = [
         c
@@ -25,12 +23,21 @@ def prettify_element(
         if (isinstance(c, str) and c != "\n") or isinstance(c, bs4.element.Tag)
     ]
     children = list(element.children)
+    has_children = False
 
     if content_children and children:
+        extra_child_spaces = __increase_spaces(spaces)
+
         for child in content_children.copy():
+            content_children.pop(0)
+
             if isinstance(child, str):
-                string += child
-                content_children.pop(0)
+                child_text = child.strip()
+
+                # Make sure that any newlines are indented to the correct number of spaces
+                child_text = child_text.replace("\n", f"\n{extra_child_spaces}")
+
+                string = f"{string}\n{extra_child_spaces}{child_text}"
             else:
                 break
 
@@ -39,17 +46,35 @@ def prettify_element(
             # Only increase the number of space for the first child
             spaces = __increase_spaces(spaces)
 
-        content_children.pop(0)
+        if not string.endswith("\n"):
+            string = f"{string}\n"
+
         has_children = True
         string += prettify_element(child, indent, max_line_length, spaces=spaces)
 
-    if content_children and children:
-        for child in content_children:
-            string += child
+        if content_children and children:
+            extra_child_spaces = __increase_spaces(spaces)
+
+            for child in content_children.copy():
+                content_children.pop(0)
+
+                if isinstance(child, str):
+                    child_text = child.strip()
+
+                    # Make sure that any newlines are indented to the correct number of spaces
+                    child_text = child_text.replace("\n", f"\n{spaces}")
+
+                    string = f"{string}{spaces}{child_text}"
+                else:
+                    break
 
     if has_children:
         spaces = __decrease_spaces(spaces)
-        string = f"{string}\n{spaces}{element.closing_tag_string}"
+
+        if not string.endswith("\n"):
+            string = f"{string}\n"
+
+        string = f"{string}{spaces}{element.closing_tag_string}"
     else:
         is_long_line = False
 
@@ -67,5 +92,8 @@ def prettify_element(
             string = f"{string}\n{spaces}"
 
         string = f"{string}{element.closing_tag_string}"
+
+    if not string.endswith("\n"):
+        string = f"{string}\n"
 
     return string

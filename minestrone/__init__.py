@@ -83,6 +83,8 @@ class HTML:
             if isinstance(top_level_child, bs4.element.Tag):
                 element = Element.convert_from_tag(self._soup, top_level_child)
                 string += element.prettify(indent, max_line_length)
+            elif isinstance(top_level_child, str) and top_level_child != "\n":
+                string += top_level_child.strip() + "\n"
 
         return string
 

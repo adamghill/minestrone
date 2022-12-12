@@ -3,14 +3,14 @@ from minestrone import HTML
 
 def eq(actual, expected):
     print(expected)
+    print("===")
     print(actual)
 
     assert actual == expected
 
 
 def test_html_prettify_no_root():
-    expected = """
-<li>
+    expected = """<li>
   <a class="sister" href="https://dormouse.com/elsie" id="elsie">Elsie</a>
 </li>
 <li>
@@ -18,7 +18,8 @@ def test_html_prettify_no_root():
 </li>
 <li>
   <a class="sister" href="https://dormouse.com/tillie" id="tillie">Tillie</a>
-</li>"""
+</li>
+"""
 
     html = HTML(
         """
@@ -39,8 +40,7 @@ def test_html_prettify_no_root():
 
 
 def test_html_prettify_minimal():
-    expected = """
-<ul>
+    expected = """<ul>
   <li>
     <a class="sister" href="https://dormouse.com/elsie" id="elsie">Elsie</a>
   </li>
@@ -50,7 +50,8 @@ def test_html_prettify_minimal():
   <li>
     <a class="sister" href="https://dormouse.com/tillie" id="tillie">Tillie</a>
   </li>
-</ul>"""
+</ul>
+"""
 
     html = HTML(
         """
@@ -73,8 +74,7 @@ def test_html_prettify_minimal():
 
 
 def test_html_prettify_4_space_indent():
-    expected = """
-<ul>
+    expected = """<ul>
     <li>
         <a class="sister" href="https://dormouse.com/elsie" id="elsie">Elsie</a>
     </li>
@@ -84,7 +84,8 @@ def test_html_prettify_4_space_indent():
     <li>
         <a class="sister" href="https://dormouse.com/tillie" id="tillie">Tillie</a>
     </li>
-</ul>"""
+</ul>
+"""
 
     html = HTML(
         """
@@ -107,14 +108,14 @@ def test_html_prettify_4_space_indent():
 
 
 def test_html_prettify_longlines():
-    expected = """
-<ul>
+    expected = """<ul>
   <li>
     <a class="sister" href="#" id="long-tweet">
       Voluptatum qui magni omnis molestias beatae sint dolor eius aliquid aut consequatur. Possimus optio dolores veniam voluptatibus autem iste ut et ut nostrum tempora quia facere. Reprehenderit at aut laboriosam consequatur id nulla.
     </a>
   </li>
-</ul>"""
+</ul>
+"""
 
     html = HTML(
         '<ul><li><a class="sister" href="#" id="long-tweet">Voluptatum qui magni omnis molestias beatae sint dolor eius aliquid aut consequatur. Possimus optio dolores veniam voluptatibus autem iste ut et ut nostrum tempora quia facere. Reprehenderit at aut laboriosam consequatur id nulla.</a></li></ul>'
@@ -125,12 +126,12 @@ def test_html_prettify_longlines():
 
 
 def test_html_prettify_longlines_none_max_line_length():
-    expected = """
-<ul>
+    expected = """<ul>
   <li>
     <a class="sister" href="#" id="long-tweet">Voluptatum qui magni omnis molestias beatae sint dolor eius aliquid aut consequatur. Possimus optio dolores veniam voluptatibus autem iste ut et ut nostrum tempora quia facere. Reprehenderit at aut laboriosam consequatur id nulla.</a>
   </li>
-</ul>"""
+</ul>
+"""
 
     html = HTML(
         '<ul><li><a class="sister" href="#" id="long-tweet">Voluptatum qui magni omnis molestias beatae sint dolor eius aliquid aut consequatur. Possimus optio dolores veniam voluptatibus autem iste ut et ut nostrum tempora quia facere. Reprehenderit at aut laboriosam consequatur id nulla.</a></li></ul>'
@@ -141,12 +142,14 @@ def test_html_prettify_longlines_none_max_line_length():
 
 
 def test_html_prettify_with_text_children():
-    expected = """
-<ul>
-  <li>extra text
-    <a class="sister" href="#" id="long-tweet">Voluptatum qui</a>even more text
+    expected = """<ul>
+  <li>
+    extra text
+    <a class="sister" href="#" id="long-tweet">Voluptatum qui</a>
+    even more text
   </li>
-</ul>"""
+</ul>
+"""
 
     html = HTML(
         '<ul><li>extra text<a class="sister" href="#" id="long-tweet">Voluptatum qui</a>even more text</li></ul>'
@@ -156,16 +159,20 @@ def test_html_prettify_with_text_children():
     eq(actual, expected)
 
 
-def test_html_prettify_with_text_children_more():
-    expected = """
-<ul>
-  <li>extra text1
-    <a class="sister" href="#" id="long-tweet1">Voluptatum qui1</a>even more text1
+def test_html_prettify_with_text_children_2():
+    expected = """<ul>
+  <li>
+    extra text1
+    <a class="sister" href="#" id="long-tweet1">Voluptatum qui1</a>
+    even more text1
   </li>
-  <li>extra text2
-    <a class="sister" href="#" id="long-tweet2">Voluptatum qui2</a>even more text2
+  <li>
+    extra text2
+    <a class="sister" href="#" id="long-tweet2">Voluptatum qui2</a>
+    even more text2
   </li>
-</ul>"""
+</ul>
+"""
 
     html = HTML(
         """
@@ -179,9 +186,63 @@ def test_html_prettify_with_text_children_more():
     eq(actual, expected)
 
 
+def test_html_prettify_with_text_children_3():
+    expected = """<a>Voluptatum qui1</a>
+1
+<a>Voluptatum qui2</a>
+"""
+
+    html = HTML(
+        """
+<a>Voluptatum qui1</a>1
+<a>Voluptatum qui2</a>
+"""
+    )
+    actual = html.prettify()
+
+    eq(actual, expected)
+
+
+def test_html_prettify_with_text_children_4():
+    expected = """9
+<ul>
+  <li>
+    0
+    1
+    <a>Voluptatum qui1</a>
+    2
+    3
+    <a>Voluptatum qui2</a>
+    4
+    <a>Voluptatum qui3</a>
+    5
+    6
+    <a>Voluptatum qui4</a>
+    7
+  </li>
+</ul>
+8
+"""
+
+    html = HTML(
+        """
+9<ul>
+<li>0
+1<a>Voluptatum qui1</a>2
+3<a>Voluptatum qui2</a>4
+<a>Voluptatum qui3</a>5
+6<a>Voluptatum qui4</a>
+7</li>
+</ul>8
+"""
+    )
+    actual = html.prettify()
+
+    eq(actual, expected)
+
+
 def test_html_doc_prettify(html_doc):
-    expected = """
-<html>
+    expected = """<html>
   <head>
     <title>The Dormouse's story</title>
   </head>
@@ -199,7 +260,8 @@ def test_html_doc_prettify(html_doc):
       </li>
     </ul>
   </body>
-</html>"""
+</html>
+"""
 
     actual = html_doc.prettify()
 
