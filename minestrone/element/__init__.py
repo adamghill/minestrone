@@ -301,6 +301,9 @@ class Element(Content):
 
     @property
     def closing_tag_string(self) -> str:
+        if self._self.isSelfClosing:
+            return ""
+
         return f"</{self.name}>"
 
     @text.setter
