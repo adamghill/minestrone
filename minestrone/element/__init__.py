@@ -290,6 +290,9 @@ class Element(Content):
         _tag_string = f"<{self.name}"
 
         for key, value in _attributes:
+            if isinstance(value, list):
+                value = " ".join(value)
+
             _tag_string += f' {key}="{value}"'
 
         _tag_string = f"{_tag_string}>"
