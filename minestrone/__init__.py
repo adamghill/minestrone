@@ -80,7 +80,11 @@ class HTML:
         strings = []
 
         for top_level_child in self._soup.contents:
-            if isinstance(top_level_child, bs4.element.Tag):
+            if isinstance(top_level_child, bs4.Doctype) and top_level_child:
+                strings.append("<!DOCTYPE ")
+                strings.append(top_level_child)
+                strings.append(">\n")
+            elif isinstance(top_level_child, bs4.element.Tag):
                 element = Element.convert_from_tag(self._soup, top_level_child)
                 strings.append(element.prettify(indent, max_line_length))
             elif isinstance(top_level_child, str) and top_level_child != "\n":
