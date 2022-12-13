@@ -41,12 +41,15 @@ def prettify_element(
                     if isinstance(content_child, str):
                         child_text = content_child.strip()
 
-                        # Make sure that any newlines are indented to the correct number of spaces
-                        child_text = child_text.replace("\n", f"\n{extra_child_spaces}")
+                        if child_text:
+                            # Make sure that any newlines are indented to the correct number of spaces
+                            child_text = child_text.replace(
+                                "\n", f"\n{extra_child_spaces}"
+                            )
 
-                        strings.append("\n")
-                        strings.append(extra_child_spaces)
-                        strings.append(child_text)
+                            strings.append("\n")
+                            strings.append(extra_child_spaces)
+                            strings.append(child_text)
                     else:
                         break
 
@@ -67,11 +70,12 @@ def prettify_element(
                 if isinstance(child, str):
                     child_text = child.strip()
 
-                    # Make sure that any newlines are indented to the correct number of spaces
-                    child_text = child_text.replace("\n", f"\n{spaces}")
+                    if child_text:
+                        # Make sure that any newlines are indented to the correct number of spaces
+                        child_text = child_text.replace("\n", f"\n{spaces}")
 
-                    strings.append(spaces)
-                    strings.append(child_text)
+                        strings.append(spaces)
+                        strings.append(child_text)
                 else:
                     break
 
