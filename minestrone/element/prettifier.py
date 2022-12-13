@@ -15,44 +15,50 @@ def prettify_element(
     def __decrease_spaces(_spaces):
         return " " * (len(_spaces) - indent)
 
-    string = f"{spaces}{element.tag_string}"
+    def __append_newline_if_needed(_strings):
+        if not _strings[-1].endswith("\n"):
+            _strings.append("\n")
+
+    strings = []
+    strings.append(spaces)
+    strings.append(element.tag_string)
 
     content_children = [
         c
         for c in element._self.contents
         if (isinstance(c, str) and c != "\n") or isinstance(c, bs4.element.Tag)
     ]
-    children = list(element.children)
     has_children = False
 
-    if content_children and children:
-        extra_child_spaces = __increase_spaces(spaces)
-
-        for child in content_children.copy():
-            content_children.pop(0)
-
-            if isinstance(child, str):
-                child_text = child.strip()
-
-                # Make sure that any newlines are indented to the correct number of spaces
-                child_text = child_text.replace("\n", f"\n{extra_child_spaces}")
-
-                string = f"{string}\n{extra_child_spaces}{child_text}"
-            else:
-                break
-
-    for child in children:
+    for child in element.children:
         if has_children is False:
+            if content_children:
+                extra_child_spaces = __increase_spaces(spaces)
+
+                for content_child in content_children.copy():
+                    content_children.pop(0)
+
+                    if isinstance(content_child, str):
+                        child_text = content_child.strip()
+
+                        # Make sure that any newlines are indented to the correct number of spaces
+                        child_text = child_text.replace("\n", f"\n{extra_child_spaces}")
+
+                        strings.append("\n")
+                        strings.append(extra_child_spaces)
+                        strings.append(child_text)
+                    else:
+                        break
+
             # Only increase the number of space for the first child
             spaces = __increase_spaces(spaces)
 
-        if not string.endswith("\n"):
-            string = f"{string}\n"
+        __append_newline_if_needed(strings)
 
         has_children = True
-        string += prettify_element(child, indent, max_line_length, spaces=spaces)
+        strings.append(prettify_element(child, indent, max_line_length, spaces=spaces))
 
-        if content_children and children:
+        if content_children:
             extra_child_spaces = __increase_spaces(spaces)
 
             for child in content_children.copy():
@@ -64,17 +70,17 @@ def prettify_element(
                     # Make sure that any newlines are indented to the correct number of spaces
                     child_text = child_text.replace("\n", f"\n{spaces}")
 
-                    string = f"{string}{spaces}{child_text}"
+                    strings.append(spaces)
+                    strings.append(child_text)
                 else:
                     break
 
     if has_children:
         spaces = __decrease_spaces(spaces)
 
-        if not string.endswith("\n"):
-            string = f"{string}\n"
-
-        string = f"{string}{spaces}{element.closing_tag_string}"
+        __append_newline_if_needed(strings)
+        strings.append(spaces)
+        strings.append(element.closing_tag_string)
     else:
         is_long_line = False
 
@@ -83,17 +89,18 @@ def prettify_element(
 
         if is_long_line:
             spaces = __increase_spaces(spaces)
-            string = f"{string}\n{spaces}"
+            strings.append("\n")
+            strings.append(spaces)
 
-        string = f"{string}{element._self.text}"
+        strings.append(element._self.text)
 
         if is_long_line:
             spaces = __decrease_spaces(spaces)
-            string = f"{string}\n{spaces}"
+            strings.append("\n")
+            strings.append(spaces)
 
-        string = f"{string}{element.closing_tag_string}"
+        strings.append(element.closing_tag_string)
 
-    if not string.endswith("\n"):
-        string = f"{string}\n"
+    __append_newline_if_needed(strings)
 
-    return string
+    return "".join(strings)

@@ -77,16 +77,17 @@ class HTML:
         if use_bs4:
             return self._soup.prettify()
 
-        string = ""
+        strings = []
 
         for top_level_child in self._soup.contents:
             if isinstance(top_level_child, bs4.element.Tag):
                 element = Element.convert_from_tag(self._soup, top_level_child)
-                string += element.prettify(indent, max_line_length)
+                strings.append(element.prettify(indent, max_line_length))
             elif isinstance(top_level_child, str) and top_level_child != "\n":
-                string += top_level_child.strip() + "\n"
+                strings.append(top_level_child.strip())
+                strings.append("\n")
 
-        return string
+        return "".join(strings)
 
     @property
     def root_element(self) -> Optional[Element]:
