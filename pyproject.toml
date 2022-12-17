@@ -20,7 +20,7 @@ keywords = ["python", "html", "beautifulsoup"]
 "Funding" = "https://github.com/sponsors/adamghill"
 
 [tool.poetry.dependencies]
-python = "^3.6.2"
+python = ">=3.7,<4.0.0"
 beautifulsoup4 = "^4.10.0"
 
 # optional parsers
@@ -37,15 +37,15 @@ attrs = { version = "^21.4.0", optional = true }
 toml = { version = "*", optional = true }
 
 [tool.poetry.dev-dependencies]
-pytest = "^6.2.5"
-flake9 = "^3.8.3"
-black = "^21.12b0"
-isort = "^5.10.1"
+pytest = "^6"
+black = "^22"
+isort = "^5"
 sphinx-autobuild = "^2021.3.14"
-types-beautifulsoup4 = "^4.10.5"
-mypy = "^0.930"
+types-beautifulsoup4 = "^4"
+mypy = "^0"
 coverage = {extras = ["toml"], version = "^6.2"}
-pytest-cov = "^3.0.0"
+pytest-cov = "^3"
+ruff = "^0"
 
 [tool.poetry.extras]
 docs = ["Sphinx", "linkify-it-py", "myst-parser", "furo", "sphinx-copybutton", "toml", "attrs"]
@@ -65,9 +65,31 @@ testpaths = [
     "tests"
 ]
 
-[tool.flake8]
-ignore = "E203,E266,H106,H904"
-max-line-length = 88
+[tool.ruff]
+line-length = 88
+select = ["E", "F"]
+ignore = []
+extend-select = ["D"]
+extend-ignore = [
+    "D101",
+    "D102",
+    "D103",
+    "D105",
+    "D106",
+    "D202",
+    "D203",
+    "D204",
+    "D213",
+    "D215",
+    "D400",
+    "D404",
+    "D406",
+    "D407",
+    "D408",
+    "D409",
+    "D413",
+    "D100",
+]
 
 [tool.coverage.run]
 branch = true
