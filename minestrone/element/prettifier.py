@@ -1,6 +1,6 @@
 import bs4
 
-from . import Element
+from . import VOID_ELEMENTS, Element
 
 
 def prettify_element(
@@ -19,14 +19,20 @@ def prettify_element(
         if not _strings[-1].endswith("\n"):
             _strings.append("\n")
 
+    def __append_string(_strings, _string):
+        if _string:
+            _strings.append(_string)
+
     strings = []
-    strings.append(spaces)
-    strings.append(element.tag_string)
+    __append_string(strings, spaces)
+    __append_string(strings, element.tag_string)
 
     content_children = [
         c
         for c in element._self.contents
-        if (isinstance(c, str) and c != "\n") or isinstance(c, bs4.element.Tag)
+        if (isinstance(c, str) and c != "\n")
+        or isinstance(c, bs4.element.Tag)
+        or isinstance(c, bs4.element.Comment)
     ]
     has_children = False
 
@@ -47,19 +53,23 @@ def prettify_element(
                                 "\n", f"\n{extra_child_spaces}"
                             )
 
-                            strings.append("\n")
-                            strings.append(extra_child_spaces)
-                            strings.append(child_text)
+                            __append_string(strings, "\n")
+                            __append_string(strings, extra_child_spaces)
+                            __append_string(strings, child_text)
                     else:
                         break
 
-            # Only increase the number of space for the first child
-            spaces = __increase_spaces(spaces)
+            if element.name not in VOID_ELEMENTS:
+                # Only increase the number of spaces if the current element can have children
+                # and it's the first child
+                spaces = __increase_spaces(spaces)
 
         __append_newline_if_needed(strings)
 
         has_children = True
-        strings.append(prettify_element(child, indent, max_line_length, spaces=spaces))
+        __append_string(
+            strings, prettify_element(child, indent, max_line_length, spaces=spaces)
+        )
 
         if content_children:
             extra_child_spaces = __increase_spaces(spaces)
@@ -73,9 +83,15 @@ def prettify_element(
                     if child_text:
                         # Make sure that any newlines are indented to the correct number of spaces
                         child_text = child_text.replace("\n", f"\n{spaces}")
+                        __append_string(strings, spaces)
 
-                        strings.append(spaces)
-                        strings.append(child_text)
+                        if isinstance(child, bs4.Comment):
+                            __append_string(strings, "<!-- ")
+
+                        __append_string(strings, child_text)
+
+                        if isinstance(child, bs4.Comment):
+                            __append_string(strings, " -->")
                 else:
                     break
 
@@ -83,8 +99,8 @@ def prettify_element(
         spaces = __decrease_spaces(spaces)
 
         __append_newline_if_needed(strings)
-        strings.append(spaces)
-        strings.append(element.closing_tag_string)
+        __append_string(strings, spaces)
+        __append_string(strings, element.closing_tag_string)
     else:
         is_long_line = False
 
@@ -93,17 +109,17 @@ def prettify_element(
 
         if is_long_line:
             spaces = __increase_spaces(spaces)
-            strings.append("\n")
-            strings.append(spaces)
+            __append_string(strings, "\n")
+            __append_string(strings, spaces)
 
-        strings.append(element._self.text)
+        __append_string(strings, element._self.text)
 
         if is_long_line:
             spaces = __decrease_spaces(spaces)
-            strings.append("\n")
-            strings.append(spaces)
+            __append_string(strings, "\n")
+            __append_string(strings, spaces)
 
-        strings.append(element.closing_tag_string)
+        __append_string(strings, element.closing_tag_string)
 
     __append_newline_if_needed(strings)
 

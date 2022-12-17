@@ -25,7 +25,7 @@ class Parser(Enum):
 
 
 class HTML:
-    encoding = "utf-8"
+    encoding: Optional[str] = "utf-8"
 
     def __init__(
         self,
@@ -33,12 +33,16 @@ class HTML:
         parser: Parser = Parser.HTML,
         encoding: str = None,
     ):
+        self.html = html
+        self.parser = parser
+
         if isinstance(html, str) or isinstance(html, bytes):
             self._soup = bs4.BeautifulSoup(
                 html, features=parser.value, from_encoding=encoding
             )
         elif isinstance(html, HTML):
             self._soup = html._soup
+            self.html = html.html
         else:
             raise Exception("Unknown type to init HTML")
 
@@ -84,9 +88,14 @@ class HTML:
                 strings.append("<!DOCTYPE ")
                 strings.append(top_level_child)
                 strings.append(">\n")
-            elif isinstance(top_level_child, bs4.element.Tag):
+            elif isinstance(top_level_child, bs4.Tag):
                 element = Element.convert_from_tag(self._soup, top_level_child)
                 strings.append(element.prettify(indent, max_line_length))
+            elif isinstance(top_level_child, bs4.Comment):
+                strings.append("<!-- ")
+                strings.append(top_level_child.strip())
+                strings.append(" -->")
+                strings.append("\n")
             elif isinstance(top_level_child, str) and top_level_child != "\n":
                 strings.append(top_level_child.strip())
                 strings.append("\n")

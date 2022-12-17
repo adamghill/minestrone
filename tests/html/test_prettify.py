@@ -1,4 +1,10 @@
+import time
+
+import pytest
+
 from minestrone import HTML
+
+PRINT_TIMINGS = True
 
 
 def eq(actual, expected):
@@ -323,6 +329,182 @@ def test_html_prettify_doc_example_2():
     )
     ul_element = next(html.query("ul"))
     actual = ul_element.prettify()
-    print(actual)
 
-    assert actual == expected
+    eq(actual, expected)
+
+
+def test_hacker_news():
+    expected = """<html op="news">
+  <head>
+    <meta name="referrer" content="origin">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="news.css?zR7cuBLVYytByk2yBoUd">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="rss">
+    <title>Hacker News</title>
+  </head>
+  <body>
+    <center>
+      <table id="hnmain" border="0" cellpadding="0" cellspacing="0" width="85%" bgcolor="#f6f6ef">
+        <tr>
+          <td bgcolor="#ff6600">
+            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="padding:2px">
+              <tr>
+                <td style="width:18px;padding-right:4px">
+                  <a href="https://news.ycombinator.com">
+                    <img src="y18.gif" width="18" height="18" style="border:1px white solid;">
+                  </a>
+                </td>
+                <td style="line-height:12pt; height:10px;">
+                  <span class="pagetop">
+                    <b class="hnname">
+                      <a href="news">Hacker News</a>
+                    </b>
+                    <a href="newest">new</a>
+                    |
+                    <a href="front">past</a>
+                    |
+                    <a href="newcomments">comments</a>
+                    |
+                    <a href="ask">ask</a>
+                    |
+                    <a href="show">show</a>
+                    |
+                    <a href="jobs">jobs</a>
+                    |
+                    <a href="submit">submit</a>
+                  </span>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </center>
+  </body>
+</html>
+"""
+
+    html = HTML(
+        """
+    <html op="news"><head><meta name="referrer" content="origin"><meta name="viewport" content="width=device-width, initial-scale=1.0"><link rel="stylesheet" type="text/css" href="news.css?zR7cuBLVYytByk2yBoUd">
+  <link rel="shortcut icon" href="favicon.ico">
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="rss">
+  <title>Hacker News</title></head><body><center><table id="hnmain" border="0" cellpadding="0" cellspacing="0" width="85%" bgcolor="#f6f6ef">
+  <tr><td bgcolor="#ff6600"><table border="0" cellpadding="0" cellspacing="0" width="100%" style="padding:2px"><tr><td style="width:18px;padding-right:4px"><a href="https://news.ycombinator.com"><img src="y18.gif" width="18" height="18" style="border:1px white solid;"></a></td>
+            <td style="line-height:12pt; height:10px;"><span class="pagetop"><b class="hnname"><a href="news">Hacker News</a></b>
+        <a href="newest">new</a> | <a href="front">past</a> | <a href="newcomments">comments</a> | <a href="ask">ask</a> | <a href="show">show</a> | <a href="jobs">jobs</a> | <a href="submit">submit</a>            </span></td>
+        </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </center>
+  </body>
+</html>
+"""
+    )
+    actual = html.prettify()
+
+    eq(actual, expected)
+
+
+def test_link_tags():
+    expected = """<link rel="preconnect" href="https://avatars.githubusercontent.com">
+<link crossorigin="anonymous" media="all" rel="stylesheet" href="https://github.githubassets.com/assets/light-719f1193e0c0.css">
+<link data-color-theme="dark" crossorigin="anonymous" media="all" rel="stylesheet" data-href="https://github.githubassets.com/assets/dark-0c343b529849.css">
+<link data-color-theme="dark_dimmed" crossorigin="anonymous" media="all" rel="stylesheet" data-href="https://github.githubassets.com/assets/dark_dimmed-f22da508b62a.css">
+"""
+
+    html = HTML(
+        """<link rel="preconnect" href="https://avatars.githubusercontent.com">
+<link crossorigin="anonymous" media="all" rel="stylesheet" href="https://github.githubassets.com/assets/light-719f1193e0c0.css" />
+<link data-color-theme="dark" crossorigin="anonymous" media="all" rel="stylesheet" data-href="https://github.githubassets.com/assets/dark-0c343b529849.css" />
+<link data-color-theme="dark_dimmed" crossorigin="anonymous" media="all" rel="stylesheet" data-href="https://github.githubassets.com/assets/dark_dimmed-f22da508b62a.css" />
+    """
+    )
+    actual = html.prettify()
+
+    eq(actual, expected)
+
+
+def test_comments():
+    expected = """<div>
+  <link rel="preconnect" href="https://avatars.githubusercontent.com">
+  <!-- some comment here -->
+  <link data-color-theme="dark" crossorigin="anonymous" media="all" rel="stylesheet" data-href="https://github.githubassets.com/assets/dark-0c343b529849.css">
+</div>
+"""
+
+    html = HTML(
+        """<div><link rel="preconnect" href="https://avatars.githubusercontent.com">
+<!-- some comment here -->
+<link data-color-theme="dark" crossorigin="anonymous" media="all" rel="stylesheet" data-href="https://github.githubassets.com/assets/dark-0c343b529849.css" />
+</div>
+    """
+    )
+    actual = html.prettify()
+
+    eq(actual, expected)
+
+    expected = """<link rel="preconnect" href="https://avatars.githubusercontent.com">
+<!-- some comment here -->
+<link data-color-theme="dark" crossorigin="anonymous" media="all" rel="stylesheet" data-href="https://github.githubassets.com/assets/dark-0c343b529849.css">
+"""
+
+    html = HTML(
+        """<link rel="preconnect" href="https://avatars.githubusercontent.com">
+            <!-- some comment here -->
+            <link data-color-theme="dark" crossorigin="anonymous" media="all" rel="stylesheet" data-href="https://github.githubassets.com/assets/dark-0c343b529849.css" />
+    """
+    )
+    actual = html.prettify()
+
+    eq(actual, expected)
+
+
+@pytest.mark.parametrize(
+    "name",
+    [
+        "hacker-news",
+        "amazon",
+        "bbc",
+        "bing",
+        "bootstrap",
+        "coding-horror",
+        "github",
+        "google",
+        "ny-times",
+        "reddit",
+        "stack-overflow",
+        "twitter",
+        "wikipedia",
+        # "ecma-262",  # this takes a long time
+    ],
+)
+def test_html_prettify_samples(name):
+    try:
+        with open(f"tests/html/samples/expected/{name}.html") as f:
+            expected = f.read()
+    except:
+        expected = ""
+
+    with open(f"tests/html/samples/{name}.html") as f:
+        html = f.read()
+
+    start_time = time.time()
+    actual = HTML(html).prettify()
+
+    if PRINT_TIMINGS:
+        elapsed_seconds = time.time() - start_time
+
+        print(f"minestrone parse {name} took: {elapsed_seconds} seconds")
+
+        if elapsed_seconds > 1:
+            assert 0, f"{name} took longer than a second to prettify"
+
+    # if expected == "":
+    #     with open(f"tests/html/samples/expected/{name}.html", "w") as f:
+    #         f.write(actual)
+
+    eq(actual, expected)

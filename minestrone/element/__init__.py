@@ -5,6 +5,30 @@ import bs4
 
 from ..formatter import UnsortedAttributes
 
+# List of void elements from: https://www.thoughtco.com/html-singleton-tags-3468620
+VOID_ELEMENTS = set(
+    (
+        "area",
+        "base",
+        "br",
+        "col",
+        "command",
+        "embed",
+        "hr",
+        "img",
+        "input",
+        "keygen",
+        "link",
+        "meta",
+        "param",
+        "source",
+        "track",
+        "wbr",
+    )
+)
+HTML5_CLOSING_TAG = ""
+XHTML_CLOSING_TAG = "/>"  # TODO: Be able to set XHTML mode
+
 
 class Content(ABC):
     """
@@ -301,8 +325,8 @@ class Element(Content):
 
     @property
     def closing_tag_string(self) -> str:
-        if self._self.isSelfClosing:
-            return ""
+        if self._self.is_empty_element or self.name in VOID_ELEMENTS:
+            return HTML5_CLOSING_TAG
 
         return f"</{self.name}>"
 
