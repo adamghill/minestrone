@@ -31,9 +31,7 @@ XHTML_CLOSING_TAG = "/>"  # TODO: Be able to set XHTML mode
 
 
 class Content(ABC):
-    """
-    Base class for `Text` and `Element` classes.
-    """
+    """Base class for `Text` and `Element` classes."""
 
     _soup: bs4.BeautifulSoup
     _self: Union[bs4.element.PageElement, bs4.element.Tag, bs4.element.Tag]
@@ -41,8 +39,7 @@ class Content(ABC):
     def append(
         self, name: Optional[str] = None, text: Optional[str] = None, **kwargs
     ) -> Union["Element", "Text"]:
-        """
-        Adds `Text` or a new `Element` after the current `Element`.
+        """Adds `Text` or a new `Element` after the current `Element`.
 
         Args:
             name: The tag name of the new `Element` or `None` for `Text`.
@@ -78,8 +75,7 @@ class Content(ABC):
             return Element.convert_from_tag(self._soup, tag)
 
     def prepend(self, name=None, text=None, **kwargs) -> Union["Element", "Text"]:
-        """
-        Adds a new element before the current element.
+        """Adds a new element before the current element.
 
         Args:
             name: The name of the element.
@@ -115,9 +111,7 @@ class Content(ABC):
             return Element.convert_from_tag(self._soup, tag)
 
     def _create_tag(self, name, text=None, **kwargs) -> bs4.element.Tag:
-        """
-        Creates a new bs4 tag to be inserted.
-        """
+        """Creates a new bs4 tag to be inserted."""
 
         attrs = self._convert_attributes(kwargs)
 
@@ -129,8 +123,7 @@ class Content(ABC):
         return tag
 
     def _convert_attributes(self, attributes: Dict) -> Dict:
-        """
-        Converts the attributes dictionary. Handles "klass"/"css" to "class" conversion.
+        """Converts the attributes dictionary. Handles "klass"/"css" to "class" conversion.
         Also handles a value of `True` for attributes like `disabled`.
 
         Returns:
@@ -179,9 +172,7 @@ class Element(Content):
     def create(
         name: str, text: str = None, soup: bs4.BeautifulSoup = None, **kwargs
     ) -> "Element":
-        """
-        Create the `Element`.
-        """
+        """Create the `Element`."""
 
         element = Element()
 
@@ -197,9 +188,7 @@ class Element(Content):
 
     @staticmethod
     def convert_from_tag(soup: bs4.BeautifulSoup, tag: bs4.element.Tag) -> "Element":
-        """
-        Gets the name of the `Element`.
-        """
+        """Gets the name of the `Element`."""
 
         element = Element()
         element._soup = soup
@@ -209,33 +198,25 @@ class Element(Content):
 
     @property
     def name(self) -> str:
-        """
-        Gets the name of the `Element`.
-        """
+        """Gets the name of the `Element`."""
 
         return self._self.name
 
     @property
     def id(self) -> Optional[str]:
-        """
-        Gets the id of the `Element`.
-        """
+        """Gets the id of the `Element`."""
 
         return self._self.attrs.get("id")
 
     @id.setter
     def id(self, string: str) -> None:
-        """
-        Sets the `id` of the `Element`.
-        """
+        """Sets the `id` of the `Element`."""
 
         self._self.attrs["id"] = string.__class__(string)
 
     @property
     def attributes(self) -> Dict:
-        """
-        Attributes of the `Element`.
-        """
+        """Attributes of the `Element`."""
 
         attrs = {}
 
@@ -264,17 +245,13 @@ class Element(Content):
 
     @property
     def classes(self) -> List[str]:
-        """
-        Return all classes of the element.
-        """
+        """Return all classes of the element."""
 
         return list(self._self.attrs.get("class", []))
 
     @property
     def children(self) -> Generator["Element", None, None]:
-        """
-        Returns an iterator of `Element`s of the children of the element.
-        """
+        """Returns an iterator of `Element`s of the children of the element."""
 
         for child in self._self.children:
             if isinstance(child, bs4.element.Tag):
@@ -282,9 +259,7 @@ class Element(Content):
 
     @property
     def parent(self) -> Optional["Element"]:
-        """
-        Returns the parent `Element` of the element.
-        """
+        """Returns the parent `Element` of the element."""
 
         if self._self.parent:
             return Element.convert_from_tag(self._soup, self._self.parent)
@@ -293,8 +268,7 @@ class Element(Content):
 
     @property
     def text(self) -> Optional[str]:
-        """
-        Gets the `text content` of the element.
+        """Gets the `text content` of the element.
 
         For example:
         `<span>Hello World</span>` would return "Hello World"
@@ -332,9 +306,7 @@ class Element(Content):
 
     @text.setter
     def text(self, string: str) -> None:
-        """
-        Sets the `text content` of the element.
-        """
+        """Sets the `text content` of the element."""
 
         self._self.clear()
         self._self.append(string.__class__(string))

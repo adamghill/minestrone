@@ -2,9 +2,7 @@ import bs4
 
 
 class UnsortedAttributes(bs4.formatter.HTMLFormatter):
-    """
-    Prevent `beautifulsoup` from re-ordering HTML attributes.
-    """
+    """Prevent `beautifulsoup` from re-ordering HTML attributes."""
 
     def __init__(self):
         super().__init__(

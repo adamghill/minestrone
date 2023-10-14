@@ -1,6 +1,4 @@
-"""
-minestrone - Search, modify, and parse messy HTML with ease.
-"""
+"""minestrone - Search, modify, and parse messy HTML with ease."""
 
 from enum import Enum
 from typing import Iterator, List, Optional, Union
@@ -52,25 +50,20 @@ class HTML:
             self.encoding = self._soup.original_encoding
 
     def query(self, selector: str) -> Iterator[Element]:
-        """
-        Returns an iterator of `Element`s that match the CSS selector.
-        """
+        """Returns an iterator of `Element`s that match the CSS selector."""
 
         for _tag in self._soup.select(selector):
             yield Element.convert_from_tag(self._soup, _tag)
 
     def query_to_list(self, selector: str) -> List[Element]:
-        """
-        Returns a list of `Element`s that match the CSS selector.
-        """
+        """Returns a list of `Element`s that match the CSS selector."""
 
         return list(self.query(selector))
 
     def prettify(
         self, indent: int = 2, max_line_length: int = 88, use_bs4: bool = False
     ) -> str:
-        """
-        Prettify HTML.
+        """Prettify HTML.
 
         Args:
             indent: How many spaces to indent for each level in the hierarchy. Defaults to 2.
@@ -104,9 +97,7 @@ class HTML:
 
     @property
     def root_element(self) -> Optional[Element]:
-        """
-        Gets the root `Element` for the HTML.
-        """
+        """Gets the root `Element` for the HTML."""
 
         for _element in self._soup.contents:
             if isinstance(_element, bs4.element.Tag) and _element.name:
@@ -115,10 +106,10 @@ class HTML:
         return None
 
     def __str__(self):
-        # Cleans up `beautifulsoup` modifications
+        # Cleans up `BeautifulSoup` modifications
         self._soup.smooth()
 
-        # Prevents `beautifulsoup` from re-ordering attributes in alphabetical order
+        # Prevent `BeautifulSoup` from re-ordering attributes in alphabetical order
         return self._soup.encode(formatter=UnsortedAttributes()).decode()
 
     def __repr__(self):
