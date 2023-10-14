@@ -21,6 +21,21 @@ html = HTML("""
 assert html.root_element.name == "div"
 ```
 
+## elements
+
+Recursively get all [elements](element.md) in the HTML.
+
+```python
+from minestrone import HTML
+html = HTML("""
+<div>
+  <span>Dormouse</span>
+</div>
+""")
+
+assert [e.name for e in html.elements] == ["div", "span"]
+```
+
 ## query
 
 Takes a CSS selector and returns an iterator of [`Element`](element.md) items.

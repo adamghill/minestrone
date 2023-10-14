@@ -1,0 +1,22 @@
+<div unicorn:id="c5bFzZQZ" unicorn:name="wizard/wizard" unicorn:key="" unicorn:checksum="jAjZYLHS" unicorn:data="{}"
+  unicorn:calls="[]">
+  <div unicorn:calls="[]" unicorn:checksum="Nwb6p5BN"
+    unicorn:data="{&quot;address&quot;:&quot;123 Main St&quot;,&quot;city&quot;:&quot;Anytown&quot;,&quot;state&quot;:&quot;CA&quot;,&quot;zip_code&quot;:&quot;12345&quot;}"
+    unicorn:id="step2" unicorn:key="" unicorn:name="wizard/step2">
+    <div>Step 2</div>
+    <div>
+      <input u:model.defer="address">
+      <input u:model.lazy="city">
+      <input u:model='state'>
+      <input u:model="zip_code">
+    </div>
+    <div>
+      Address: 123 Main St<br>
+      City: Anytown<br>
+      State: CA<br>
+      Zip code: 12345<br>
+    </div>
+    <button unicorn:click="$parent.previous()">Previous</button>
+    <button unicorn:click="$parent.next()">Next</button>
+  </div>
+</div>

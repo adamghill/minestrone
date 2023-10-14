@@ -24,6 +24,26 @@ def test_query_tag(html_doc):
     assert 3 == len(list(html_doc.query("a")))
 
 
+def test_elements_with_one_parent(html_unicorn_fragment):
+    actual = len(list(html_unicorn_fragment.elements))
+    expected = 15
+
+    assert actual == expected
+
+
+def test_elements_with_multiple_parents():
+    from minestrone import HTML
+
+    html = HTML(
+        """
+    <div></div>
+    <span>Dormouse</span>
+    """
+    )
+
+    assert [e.name for e in html.elements] == ["div", "span"]
+
+
 def test_query_len_raises(html_doc):
     with pytest.raises(TypeError) as e:
         len(html_doc.query("a"))

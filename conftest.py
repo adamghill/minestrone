@@ -23,3 +23,14 @@ def html_fragment(html_fragment_str) -> HTML:
 def html_fragment_str() -> str:
     with open("tests/samples/html_fragment.html", "r") as f:
         return f.read()
+
+
+@pytest.fixture
+def html_unicorn_fragment(html_unicorn_fragment_str) -> HTML:
+    return HTML(html_unicorn_fragment_str)
+
+
+@pytest.fixture
+def html_unicorn_fragment_str() -> str:
+    with open("tests/samples/html_unicorn_fragment.html", "r") as f:
+        return f.read()

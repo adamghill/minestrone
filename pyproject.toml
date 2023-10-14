@@ -36,7 +36,7 @@ sphinx-copybutton = { version = "^0.4.0", optional = true }
 attrs = { version = "^21.4.0", optional = true }
 toml = { version = "*", optional = true }
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 pytest = "^6"
 black = "^22"
 isort = "^5"
@@ -46,6 +46,7 @@ mypy = "^0"
 coverage = {extras = ["toml"], version = "^6.2"}
 pytest-cov = "^3"
 ruff = "^0"
+pytest-benchmark = "^4.0.0"
 
 [tool.poetry.extras]
 docs = ["Sphinx", "linkify-it-py", "myst-parser", "furo", "sphinx-copybutton", "toml", "attrs"]
@@ -60,7 +61,7 @@ profile = "black"
 multi_line_output = 3
 
 [tool.pytest.ini_options]
-addopts = "--quiet --failed-first -p no:warnings"
+addopts = "--quiet --failed-first -p no:warnings --benchmark-skip"
 testpaths = [
     "tests"
 ]
@@ -101,7 +102,8 @@ skip_covered = true
 skip_empty = true
 
 [tool.poe.tasks]
-t = { cmd = "pytest --cov=minestrone", help = "Run tests" }
+t = { cmd = "pytest", help = "Run tests" }
+tc = { cmd = "pytest --cov=minestrone", help = "Run tests with coverage" }
 r = { cmd = "coverage report", help = "Show coverage report" }
 my = { cmd = "mypy .", help = "Run mypy" }
 b = { cmd = "black . --check --quiet", help = "Run black" }

@@ -105,6 +105,14 @@ class HTML:
 
         return None
 
+    @property
+    def elements(self) -> Iterator[Element]:
+        """Recursively yield all `Element`s in the HTML."""
+
+        for _element in self._soup.descendants:
+            if isinstance(_element, bs4.element.Tag) and _element.name:
+                yield Element.convert_from_tag(self._soup, _element)
+
     def __str__(self):
         # Cleans up `BeautifulSoup` modifications
         self._soup.smooth()
