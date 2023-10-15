@@ -1,6 +1,6 @@
 # Introduction
 
-`minestrone` is a opinionated Python library that lets you search, modify, and parse messy HTML with ease.
+`minestrone` is an opinionated Python library that lets you search, modify, and parse messy HTML with ease.
 
 ## Behind the scenes
 
