@@ -23,6 +23,7 @@ There are a few other libraries to interact with HTML in Python, but most are fo
 - [`lxml.html`](https://lxml.de/lxmlhtml.html): based on `lxml`, but provides a special Element API for HTML elements, as well as a number of utilities for common HTML processing tasks.
 - [`html.parser`](https://docs.python.org/3/library/html.parser.html): simple HTML and XHTML parser in standard library.
 - [`parsel`](https://parsel.readthedocs.io/): Parsel is a BSD-licensed Python library to extract data from HTML, JSON, and XML documents.
+- [`selectolax`](https://github.com/rushter/selectolax): a fast HTML5 parser with CSS selectors.
 - [`gazpacho`](https://pypi.org/project/gazpacho/): simple, fast, and modern web scraping library. The library is stable, actively maintained, and installed with zero dependencies.
 - [`Requests-HTML`](https://requests-html.kennethreitz.org/): HTML Parsing for Humans. It intends to make parsing HTML (e.g. scraping the web) as simple and intuitive as possible.
 - [`regex`](https://docs.python.org/3/library/re.html): just kidding, you probably shouldn't use `regex` to parse HTML unless you are a masochist.
