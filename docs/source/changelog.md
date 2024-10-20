@@ -1,11 +1,17 @@
 # Changelog
 
+## 0.8.0
+
+- Add `Element.insert` and `Element.remove_children`.
+
 ## 0.7.0
+
 - Add `HTML.elements`.
 
 ## 0.6.2
-- Optimize `prettify` method to be as fast as possible
-- Support HTML doctype, comments, void elements, and other improvements for `prettify`
+
+- Optimize `prettify` method to be as fast as possible.
+- Support HTML doctype, comments, void elements, and other improvements for `prettify`.
 
 ## 0.6.1
 
