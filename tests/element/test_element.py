@@ -292,3 +292,39 @@ def test_closing_tag_string(html_doc):
     actual = tillie.closing_tag_string
 
     assert actual == expected
+
+
+def test_remove_children(html_doc):
+    ul = next(html_doc.query("ul"))
+    assert len(list(ul.children)) == 3
+
+    ul.remove_children()
+    assert len(list(ul.children)) == 0
+
+
+def test_insert(html_doc):
+    ul = next(html_doc.query("ul"))
+    assert len(list(ul.children)) == 3
+
+    element = Element.create("li", "insert")
+
+    ul.insert(element)
+    assert len(list(ul.children)) == 4
+
+    expected = "<li>insert</li>"
+    actual = str(list(ul.children)[0])
+
+    assert actual == expected
+
+
+def test_insert_index(html_doc):
+    ul = next(html_doc.query("ul"))
+    element = Element.create("li", "insert-index")
+
+    ul.insert(element, -1)
+    assert len(list(ul.children)) == 4
+
+    expected = "<li>insert-index</li>"
+    actual = str(list(ul.children)[-1])
+
+    assert actual == expected

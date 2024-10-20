@@ -210,7 +210,7 @@ class Element(Content):
 
     @id.setter
     def id(self, string: str) -> None:
-        """Sets the `id` of the `Element`."""
+        """Set the `id` of the `Element`."""
 
         self._self.attrs["id"] = string.__class__(string)
 
@@ -278,6 +278,13 @@ class Element(Content):
 
         return "".join([str(c) for c in self._self.contents])
 
+    @text.setter
+    def text(self, string: str) -> None:
+        """Set the `text content` of the element."""
+
+        self._self.clear()
+        self._self.append(string.__class__(string))
+
     @property
     def tag_string(self) -> str:
         _attributes = self.attributes.items()
@@ -304,12 +311,15 @@ class Element(Content):
 
         return f"</{self.name}>"
 
-    @text.setter
-    def text(self, string: str) -> None:
-        """Sets the `text content` of the element."""
+    def insert(self, element: "Element", index: int = 0) -> None:
+        """Insert a child element into this element."""
+
+        self._self.insert(index, element._self)
+
+    def remove_children(self) -> None:
+        """Remove all children from the element."""
 
         self._self.clear()
-        self._self.append(string.__class__(string))
 
     def prettify(self, indent: int = 2, max_line_length: int = 88):
         # Import here to avoid circular imports
