@@ -346,39 +346,43 @@ def test_hacker_news():
   <body>
     <center>
       <table id="hnmain" border="0" cellpadding="0" cellspacing="0" width="85%" bgcolor="#f6f6ef">
-        <tr>
-          <td bgcolor="#ff6600">
-            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="padding:2px">
-              <tr>
-                <td style="width:18px;padding-right:4px">
-                  <a href="https://news.ycombinator.com">
-                    <img src="y18.gif" width="18" height="18" style="border:1px white solid;">
-                  </a>
-                </td>
-                <td style="line-height:12pt; height:10px;">
-                  <span class="pagetop">
-                    <b class="hnname">
-                      <a href="news">Hacker News</a>
-                    </b>
-                    <a href="newest">new</a>
-                    |
-                    <a href="front">past</a>
-                    |
-                    <a href="newcomments">comments</a>
-                    |
-                    <a href="ask">ask</a>
-                    |
-                    <a href="show">show</a>
-                    |
-                    <a href="jobs">jobs</a>
-                    |
-                    <a href="submit">submit</a>
-                  </span>
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
+        <tbody>
+          <tr>
+            <td bgcolor="#ff6600">
+              <table border="0" cellpadding="0" cellspacing="0" width="100%" style="padding:2px">
+                <tbody>
+                  <tr>
+                    <td style="width:18px;padding-right:4px">
+                      <a href="https://news.ycombinator.com">
+                        <img src="y18.gif" width="18" height="18" style="border:1px white solid;">
+                      </a>
+                    </td>
+                    <td style="line-height:12pt; height:10px;">
+                      <span class="pagetop">
+                        <b class="hnname">
+                          <a href="news">Hacker News</a>
+                        </b>
+                        <a href="newest">new</a>
+                        |
+                        <a href="front">past</a>
+                        |
+                        <a href="newcomments">comments</a>
+                        |
+                        <a href="ask">ask</a>
+                        |
+                        <a href="show">show</a>
+                        |
+                        <a href="jobs">jobs</a>
+                        |
+                        <a href="submit">submit</a>
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        </tbody>
       </table>
     </center>
   </body>
@@ -483,11 +487,8 @@ def test_comments():
     ],
 )
 def test_html_prettify_samples(name):
-    try:
-        with open(f"tests/html/samples/expected/{name}.html") as f:
-            expected = f.read()
-    except:
-        expected = ""
+    with open(f"tests/html/samples/expected/{name}.html") as f:
+        expected = f.read()
 
     with open(f"tests/html/samples/{name}.html") as f:
         html = f.read()

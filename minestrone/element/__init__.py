@@ -1,334 +1,288 @@
-from abc import ABC
-from typing import Dict, Generator, List, Optional, Sequence, Union
+"""Element and Text classes for minestrone."""
 
-import bs4
+from typing import Dict, Iterator, List, Optional, Union
 
-from ..formatter import UnsortedAttributes
-
-# List of void elements from: https://www.thoughtco.com/html-singleton-tags-3468620
-VOID_ELEMENTS = set(
-    (
-        "area",
-        "base",
-        "br",
-        "col",
-        "command",
-        "embed",
-        "hr",
-        "img",
-        "input",
-        "keygen",
-        "link",
-        "meta",
-        "param",
-        "source",
-        "track",
-        "wbr",
-    )
-)
-HTML5_CLOSING_TAG = ""
-XHTML_CLOSING_TAG = "/>"  # TODO: Be able to set XHTML mode
+from selectolax.lexbor import LexborHTMLParser, LexborNode
 
 
-class Content(ABC):
+class Content:
     """Base class for `Text` and `Element` classes."""
 
-    _soup: bs4.BeautifulSoup
-    _self: Union[bs4.element.PageElement, bs4.element.Tag, bs4.element.Tag]
+    _node: LexborNode
+
+    def _convert_attributes(self, attributes: Dict) -> Dict:
+        """Convert attributes to be compatible with `selectolax`."""
+        new_attributes = {}
+
+        for k, v in attributes.items():
+            if k == "class" or k == "klass" or k == "css":
+                k = "class"
+
+            if v is True:
+                v = k
+
+            new_attributes[k] = str(v)
+
+        return new_attributes
 
     def append(
         self, name: Optional[str] = None, text: Optional[str] = None, **kwargs
     ) -> Union["Element", "Text"]:
-        """Adds `Text` or a new `Element` after the current `Element`.
-
-        Args:
-            name: The tag name of the new `Element` or `None` for `Text`.
-            text: The text content either by itself or within the element, e.g. "test"
-                would be the text for `<span>test</span>`.
-            kwargs: Any attributes that should be added to the new element. Use "css"
-                or "klass" for "class"; use the value of `True` for attributes that
-                do not require a value like `disabled`. `None` for `Text`.
-
-        Returns:
-            The newly added `Element` or `Text`.
-        """
-
+        """Add `Text` or a new `Element` after the current `Element`."""
         if name is None:
-            assert text is not None, "Text content is required"
-            assert not kwargs, "No attributes can be set for text content"
+            if text is None:
+                raise ValueError("Text content is required")
+            if kwargs:
+                raise ValueError("No attributes can be set for text content")
 
-            self._self.insert_after(text)
+            # selectolax does not have `insert_text_after`, so use `insert_after`
+            self._node.insert_after(text)
 
-            # Get the just inserted text
-            next_sibling = self._self.next_sibling
+            # Get the newly inserted text node
+            next_node = self._node.next
 
-            if next_sibling is not None and isinstance(
-                next_sibling, bs4.element.NavigableString
-            ):
-                return Text.convert_from_navigable_string(self._soup, next_sibling)
+            if next_node and next_node.is_text_node:
+                return Text(next_node)
 
-            raise Exception("Could not find text")
+            raise Exception("Could not find inserted text node")
         else:
-            tag = self._create_tag(name, text=text, **kwargs)
-            self._self.insert_after(tag)
+            element = Element.create(name, text, **kwargs)
+            self._node.insert_after(element._node)
+            inserted = self._node.next
+            return Element(inserted)
 
-            return Element.convert_from_tag(self._soup, tag)
-
-    def prepend(self, name=None, text=None, **kwargs) -> Union["Element", "Text"]:
-        """Adds a new element before the current element.
-
-        Args:
-            name: The name of the element.
-            text: The `text content` of the element, e.g. "test" is the text for
-                `<span>test</span>`
-            kwargs: Any attributes that should be added to the new element. Use "css"
-                or "klass" for "class"; use the value of `True` for attributes that
-                do not require a value like `disabled`.
-
-        Returns:
-            The newly created element or `None` if text content was prepended.
-        """
-
+    def prepend(
+        self, name: Optional[str] = None, text: Optional[str] = None, **kwargs
+    ) -> Union["Element", "Text"]:
+        """Add a new element before the current element."""
         if name is None:
-            assert text is not None, "Text content is required"
-            assert not kwargs, "No attributes can be set for text content"
+            if text is None:
+                raise ValueError("Text content is required")
+            if kwargs:
+                raise ValueError("No attributes can be set for text content")
 
-            self._self.insert_before(text)
-
-            # Get the just inserted text
-            previous_sibling = self._self.previous_sibling
-
-            if previous_sibling is not None and isinstance(
-                previous_sibling, bs4.element.NavigableString
-            ):
-                return Text.convert_from_navigable_string(self._soup, previous_sibling)
-
-            raise Exception("Could not find text")
+            self._node.insert_before(text)
+            prev_node = self._node.prev
+            if prev_node and prev_node.is_text_node:
+                return Text(prev_node)
+            raise Exception("Could not find inserted text node")
         else:
-            tag = self._create_tag(name, text=text, **kwargs)
-            self._self.insert_before(tag)
-
-            return Element.convert_from_tag(self._soup, tag)
-
-    def _create_tag(self, name, text=None, **kwargs) -> bs4.element.Tag:
-        """Creates a new bs4 tag to be inserted."""
-
-        attrs = self._convert_attributes(kwargs)
-
-        tag = self._soup.new_tag(name, attrs=attrs)
-
-        if text:
-            tag.string = text
-
-        return tag
-
-    def _convert_attributes(self, attributes: Dict) -> Dict:
-        """Converts the attributes dictionary. Handles "klass"/"css" to "class" conversion.
-        Also handles a value of `True` for attributes like `disabled`.
-
-        Returns:
-            A new dictionary.
-        """
-
-        attrs = {}
-
-        for key, value in attributes.items():
-            if key == "klass" or key == "css":
-                key = "class"
-
-            if value is True:
-                value = key
-
-            attrs[key] = value
-
-        return attrs
+            element = Element.create(name, text, **kwargs)
+            self._node.insert_before(element._node)
+            inserted = self._node.prev
+            return Element(inserted)
 
 
 class Text(Content):
-    _self: bs4.element.NavigableString
-
-    @staticmethod
-    def convert_from_navigable_string(
-        soup: bs4.BeautifulSoup,
-        navigable_string: bs4.element.NavigableString,
-    ) -> "Text":
-        text = Text()
-        text._soup = soup
-        text._self = navigable_string
-
-        return text
+    def __init__(self, node: LexborNode):
+        """Initialize Text."""
+        self._node = node
 
     def __str__(self):
-        return str(self._self)
+        return self._node.text_content
 
     def __repr__(self):
         return self.__str__()
 
 
 class Element(Content):
-    _self: bs4.element.Tag
+    def __init__(self, node: LexborNode):
+        """Initialize Element."""
+        self._node = node
 
     @staticmethod
     def create(
-        name: str, text: str = None, soup: bs4.BeautifulSoup = None, **kwargs
+        name: str,
+        text: Optional[str] = None,
+        **kwargs,
     ) -> "Element":
-        """Create the `Element`."""
+        """Create a detached `Element`."""
+        html = f"<{name}></{name}>"
+        parser = LexborHTMLParser(html)
+        node = parser.body.child
 
-        element = Element()
+        if text:
+            node.insert_child(text)
 
-        if soup is None:
-            soup = bs4.BeautifulSoup()
+        element = Element(node)
 
-        element._soup = soup
-
-        tag = element._create_tag(name, text=text, **kwargs)
-        element._self = tag
-
-        return element
-
-    @staticmethod
-    def convert_from_tag(soup: bs4.BeautifulSoup, tag: bs4.element.Tag) -> "Element":
-        """Gets the name of the `Element`."""
-
-        element = Element()
-        element._soup = soup
-        element._self = tag
+        # Apply attributes
+        if kwargs:
+            element.attributes = kwargs
 
         return element
 
     @property
     def name(self) -> str:
-        """Gets the name of the `Element`."""
-
-        return self._self.name
+        """Get the tag name."""
+        return self._node.tag
 
     @property
     def id(self) -> Optional[str]:
-        """Gets the id of the `Element`."""
-
-        return self._self.attrs.get("id")
+        """Get the element id."""
+        return self._node.attrs.get("id")
 
     @id.setter
-    def id(self, string: str) -> None:
-        """Set the `id` of the `Element`."""
-
-        self._self.attrs["id"] = string.__class__(string)
+    def id(self, value: str) -> None:
+        """Set the element id."""
+        self._node.attrs["id"] = value
 
     @property
     def attributes(self) -> Dict:
-        """Attributes of the `Element`."""
-
-        attrs = {}
-
-        for k, v in self._self.attrs.items():
-            if k == "class":
-                attrs["class"] = " ".join(v)
-            else:
-                attrs[k] = v
-
-        return attrs
+        """Get the element attributes."""
+        return dict(self._node.attrs)
 
     @attributes.setter
     def attributes(self, value: Dict):
-        attrs = self._convert_attributes(value)
+        """Set the element attributes."""
+        for k in list(self._node.attrs.keys()):
+            del self._node.attrs[k]
 
-        for k, v in attrs.items():
-            if k == "class":
-                if isinstance(v, str):
-                    attrs[k] = v.split(" ")
-                elif isinstance(v, Sequence):
-                    attrs[k] = list(v)
-                else:
-                    raise Exception("Invalid type for CSS classes")
+        for k, v in value.items():
+            if k == "class" or k == "klass" or k == "css":
+                k = "class"
 
-        self._self.attrs = attrs
+            if isinstance(v, (list, tuple)):
+                v = " ".join(v)
+
+            if v is True:
+                v = k
+
+            if not isinstance(v, (str, bool, list, tuple)):
+                raise ValueError(
+                    f"Attribute value must be a string, boolean, list, or tuple, not {type(v)}"
+                )
+
+            self._node.attrs[k] = str(v)
 
     @property
     def classes(self) -> List[str]:
-        """Return all classes of the element."""
+        """Get the element classes."""
+        cls = self._node.attrs.get("class")
+        if cls:
+            return cls.split()
+        return []
 
-        return list(self._self.attrs.get("class", []))
+    @classes.setter
+    def classes(self, value: List[str]) -> None:
+        """Set the element classes."""
+        self._node.attrs["class"] = " ".join(value)
 
     @property
-    def children(self) -> Generator["Element", None, None]:
-        """Returns an iterator of `Element`s of the children of the element."""
-
-        for child in self._self.children:
-            if isinstance(child, bs4.element.Tag):
-                yield Element.convert_from_tag(self._soup, child)
+    def children(self) -> Iterator["Element"]:
+        """Get the child elements."""
+        curr = self._node.child
+        while curr:
+            if curr.is_element_node:
+                yield Element(curr)
+            curr = curr.next
 
     @property
     def parent(self) -> Optional["Element"]:
-        """Returns the parent `Element` of the element."""
-
-        if self._self.parent:
-            return Element.convert_from_tag(self._soup, self._self.parent)
-
+        """Get the parent element."""
+        p = self._node.parent
+        if p:
+            return Element(p)
         return None
 
     @property
-    def text(self) -> Optional[str]:
-        """Gets the `text content` of the element.
-
-        For example:
-        `<span>Hello World</span>` would return "Hello World"
-
-        `<h1><code>Hello</code> World</h1>` would return "<code>Hello</code> World"
-        """
-
-        return "".join([str(c) for c in self._self.contents])
+    def text(self) -> str:
+        """Get the text content."""
+        texts = []
+        curr = self._node.child
+        while curr:
+            if curr.is_text_node:
+                texts.append(curr.text_content)
+            else:
+                texts.append(curr.html)
+            curr = curr.next
+        return "".join(texts)
 
     @text.setter
-    def text(self, string: str) -> None:
-        """Set the `text content` of the element."""
+    def text(self, value: str) -> None:
+        """Set the text content."""
+        # Remove all children
+        while self._node.child:
+            self._node.child.remove()
 
-        self._self.clear()
-        self._self.append(string.__class__(string))
+        self._node.insert_child(value)
 
     @property
     def tag_string(self) -> str:
-        _attributes = self.attributes.items()
-
-        if not _attributes:
-            return f"<{self.name}>"
-
-        _tag_string = f"<{self.name}"
-
-        for key, value in _attributes:
-            if isinstance(value, list):
-                value = " ".join(value)
-
-            _tag_string += f' {key}="{value}"'
-
-        _tag_string = f"{_tag_string}>"
-
-        return _tag_string
+        """Get the opening tag string."""
+        parts = [self.name]
+        for k, v in self.attributes.items():
+            parts.append(f'{k}="{v}"')
+        return f"<{' '.join(parts)}>"
 
     @property
     def closing_tag_string(self) -> str:
-        if self._self.is_empty_element or self.name in VOID_ELEMENTS:
-            return HTML5_CLOSING_TAG
-
+        """Get the closing tag string."""
+        if self.name in VOID_ELEMENTS:
+            return ""
         return f"</{self.name}>"
 
     def insert(self, element: "Element", index: int = 0) -> None:
-        """Insert a child element into this element."""
+        """Insert a child element at the specified index."""
+        if index < 0:
+            self._node.insert_child(element._node)
+            return
 
-        self._self.insert(index, element._self)
+        curr = self._node.child
+        if index == 0:
+            if curr:
+                curr.insert_before(element._node)
+            else:
+                self._node.insert_child(element._node)
+            return
+
+        i = 0
+        while curr and i < index:
+            curr = curr.next
+            i += 1
+
+        if curr:
+            curr.insert_before(element._node)
+        else:
+            self._node.insert_child(element._node)
 
     def remove_children(self) -> None:
-        """Remove all children from the element."""
+        """Remove all child elements."""
+        while self._node.child:
+            self._node.child.remove()
 
-        self._self.clear()
+    def _create_tag(self, name: str, text: Optional[str] = None, **kwargs) -> "Element":
+        """Create a new tag."""
+        return Element.create(name, text, **kwargs)
 
-    def prettify(self, indent: int = 2, max_line_length: int = 88):
-        # Import here to avoid circular imports
-        from .prettifier import prettify_element
+    def prettify(self, indent: int = 2, max_line_length: Optional[int] = 88):
+        """Prettify the element."""
+        from minestrone.element.prettifier import prettify_element
 
         return prettify_element(self, indent, max_line_length)
 
     def __str__(self):
-        return self._self.encode(formatter=UnsortedAttributes()).decode()
+        return self._node.html
 
     def __repr__(self):
         return self.__str__()
+
+
+VOID_ELEMENTS = {
+    "area",
+    "base",
+    "br",
+    "col",
+    "command",
+    "embed",
+    "hr",
+    "img",
+    "input",
+    "keygen",
+    "link",
+    "meta",
+    "param",
+    "source",
+    "track",
+    "wbr",
+}

@@ -1,12 +1,9 @@
 # Run this with `poe t tests/test_benchmarks.py --benchmark-only`
+import re
+from html.parser import HTMLParser
 from typing import Iterator
 
-import re
 from minestrone import HTML, Element
-from html.parser import HTMLParser
-
-from lxml import html as lxml_html
-from bs4 import BeautifulSoup, Tag
 
 UNICORN_MODEL_REGEX = re.compile(
     r"(unicorn:model|u:model)(\.[^=]+)?=[\"'](?P<unicorn_model_name>[^\"']+)[\"']"
@@ -35,56 +32,6 @@ HTML_FRAGMENT = """<div unicorn:id="c5bFzZQZ" unicorn:name="wizard/wizard" unico
 EXPECTED = ["address", "city", "state", "zip_code"]
 
 
-def _parse_beautiful_soup(soup: BeautifulSoup):
-    unicorn_model_names = []
-
-    for tag in soup.descendants:
-        if isinstance(tag, Tag) and tag.name:
-            for attr in tag.attrs.keys():
-                if attr.startswith("unicorn:model") or attr.startswith("u:model"):
-                    unicorn_model_names.append(tag.attrs[attr])
-
-    return unicorn_model_names
-
-
-def test_beautiful_soup_html_parser_with_existing_soup(benchmark):
-    html_parser_soup = BeautifulSoup(HTML_FRAGMENT, features="html.parser")
-
-    def _():
-        return _parse_beautiful_soup(html_parser_soup)
-
-    actual = benchmark(_)
-    assert EXPECTED == actual
-
-
-def test_beautiful_soup_html_parser(benchmark):
-    def _():
-        soup = BeautifulSoup(HTML_FRAGMENT, features="html.parser")
-        return _parse_beautiful_soup(soup)
-
-    actual = benchmark(_)
-    assert EXPECTED == actual
-
-
-def test_beautiful_soup_lxml(benchmark):
-    def _():
-        soup = BeautifulSoup(HTML_FRAGMENT, features="lxml")
-        return _parse_beautiful_soup(soup)
-
-    actual = benchmark(_)
-    assert EXPECTED == actual
-
-
-def test_beautiful_soup_lxml_with_existing_soup(benchmark):
-    lxml_soup = BeautifulSoup(HTML_FRAGMENT, features="lxml")
-
-    def _():
-        return _parse_beautiful_soup(lxml_soup)
-
-    actual = benchmark(_)
-    assert EXPECTED == actual
-
-
 def test_regex(benchmark):
     def _():
         return [
@@ -93,7 +40,6 @@ def test_regex(benchmark):
         ]
 
     actual = benchmark(_)
-
     assert EXPECTED == actual
 
 
@@ -115,7 +61,6 @@ def test_minestrone(benchmark):
         return unicorn_model_names
 
     actual = benchmark(_)
-
     assert EXPECTED == actual
 
 
@@ -132,40 +77,65 @@ def test_minestrone_with_existing_html(benchmark):
         return unicorn_model_names
 
     actual = benchmark(_)
-
     assert EXPECTED == actual
 
 
-# def test_parsel(benchmark):
-#     from parsel import Selector
-#     def _():
-#         selector = Selector(html)
+def test_parsel(benchmark):
+    from parsel import Selector
 
-#         r = selector.css("input::attr(unicorn:model)").getall()
-
-#         print(r)
-
-#         return []
-
-#     unicorn_model_names = benchmark(_)
-#     assert len(unicorn_model_names) == 4
-
-
-def test_lxml_html(benchmark):
     def _():
+        selector = Selector(HTML_FRAGMENT)
         unicorn_model_names = []
 
-        for element in lxml_html.fragment_fromstring(HTML_FRAGMENT).iter():
-            for attrs in element.items():
-                if attrs[0].startswith("unicorn:model") or attrs[0].startswith(
-                    "u:model"
-                ):
-                    unicorn_model_names.append(attrs[1])
-
+        for element in selector.xpath("//*"):
+            for root_attr_name, root_attr_value in element.root.attrib.items():
+                if root_attr_name.startswith(
+                    "unicorn:model"
+                ) or root_attr_name.startswith("u:model"):
+                    unicorn_model_names.append(root_attr_value)
         return unicorn_model_names
 
     actual = benchmark(_)
+    assert EXPECTED == actual
 
+
+def test_selectolax(benchmark):
+    from selectolax.lexbor import LexborHTMLParser
+
+    def _():
+        parser = LexborHTMLParser(HTML_FRAGMENT)
+        unicorn_model_names = []
+
+        for node in parser.css("*"):
+            for attr_name, attr_value in node.attributes.items():
+                if attr_name.startswith("unicorn:model") or attr_name.startswith(
+                    "u:model"
+                ):
+                    unicorn_model_names.append(attr_value)
+        return unicorn_model_names
+
+    actual = benchmark(_)
+    assert EXPECTED == actual
+
+
+def test_markupever(benchmark):
+    import markupever
+
+    def _():
+        doc = markupever.parse(HTML_FRAGMENT)
+        unicorn_model_names = []
+
+        for element in doc.root().descendants():
+            if isinstance(element, markupever.dom.Element):
+                for key in element.attrs:
+                    attr_name = key.local
+                    if attr_name.startswith("unicorn:model") or attr_name.startswith(
+                        "u:model"
+                    ):
+                        unicorn_model_names.append(element.attrs.get(key))
+        return unicorn_model_names
+
+    actual = benchmark(_)
     assert EXPECTED == actual
 
 
@@ -190,5 +160,4 @@ def test_html_parser(benchmark):
         return parser.unicorn_model_names
 
     actual = benchmark(_)
-
     assert EXPECTED == actual

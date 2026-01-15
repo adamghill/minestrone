@@ -1,124 +1,211 @@
 """minestrone - Search, modify, and parse messy HTML with ease."""
 
-from enum import Enum
+import re
 from typing import Iterator, List, Optional, Union
 
-import bs4
+from selectolax.lexbor import LexborHTMLParser
 
-from .element import Element, Text
-from .formatter import UnsortedAttributes
+from minestrone.element import Content, Element, Text
 
 __all__ = [
     "HTML",
+    "Content",
     "Element",
     "Text",
-    "Parser",
 ]
-
-
-class Parser(Enum):
-    HTML = "html.parser"
-    LXML = "lxml"
-    HTML5 = "html5lib"
 
 
 class HTML:
     encoding: Optional[str] = "utf-8"
+    _input_is_fragment: bool = False
 
     def __init__(
         self,
-        html: Union[str, "HTML"],
-        parser: Parser = Parser.HTML,
-        encoding: str = None,
+        html: Union[str, bytes, "HTML"],
+        encoding: Optional[str] = None,
     ):
-        self.html = html
-        self.parser = parser
+        """Analyze, search, and modify HTML."""
 
-        if isinstance(html, str) or isinstance(html, bytes):
-            self._soup = bs4.BeautifulSoup(
-                html, features=parser.value, from_encoding=encoding
-            )
-        elif isinstance(html, HTML):
-            self._soup = html._soup
+        if isinstance(html, HTML):
             self.html = html.html
+            self._parser = LexborHTMLParser(self.html)
+            self._input_is_fragment = html._input_is_fragment
+        elif isinstance(html, (str, bytes)):
+            if isinstance(html, bytes):
+                if encoding:
+                    html = html.decode(encoding)
+                else:
+                    html = html.decode("utf-8")  # Default fallback
+
+            self.html = html
+            self._parser = LexborHTMLParser(html)
+
+            self._input_is_fragment = self._is_fragment(html)
         else:
-            raise Exception("Unknown type to init HTML")
+            raise Exception("Unknown type to initialize HTML")
 
         if encoding:
             self.encoding = encoding
-        else:
-            self.encoding = self._soup.original_encoding
 
     def query(self, selector: str) -> Iterator[Element]:
-        """Returns an iterator of `Element`s that match the CSS selector."""
-
-        for _tag in self._soup.select(selector):
-            yield Element.convert_from_tag(self._soup, _tag)
+        """Return an iterator of `Element`s that match the CSS selector."""
+        for node in self._parser.css(selector):
+            yield Element(node)
 
     def query_to_list(self, selector: str) -> List[Element]:
-        """Returns a list of `Element`s that match the CSS selector."""
-
+        """Return a list of `Element`s that match the CSS selector."""
         return list(self.query(selector))
 
     def prettify(
-        self, indent: int = 2, max_line_length: int = 88, use_bs4: bool = False
+        self,
+        indent: int = 2,
+        max_line_length: Optional[int] = 88,
     ) -> str:
-        """Prettify HTML.
-
-        Args:
-            indent: How many spaces to indent for each level in the hierarchy. Defaults to 2.
-            max_line_length: How long the line can reach before indenting another level. Defaults to 88. If `None` it will never used.
-            use_bs4: Whether to use the `BeautifulSoup` `prettify` function or `minestrone`. Defaults to `False`.
-        """
-
-        if use_bs4:
-            return self._soup.prettify()
-
+        """Prettify HTML."""
         strings = []
 
-        for top_level_child in self._soup.contents:
-            if isinstance(top_level_child, bs4.Doctype) and top_level_child:
-                strings.append("<!DOCTYPE ")
-                strings.append(top_level_child)
-                strings.append(">\n")
-            elif isinstance(top_level_child, bs4.Tag):
-                element = Element.convert_from_tag(self._soup, top_level_child)
-                strings.append(element.prettify(indent, max_line_length))
-            elif isinstance(top_level_child, bs4.Comment):
-                strings.append("<!-- ")
-                strings.append(top_level_child.strip())
-                strings.append(" -->")
-                strings.append("\n")
-            elif isinstance(top_level_child, str) and top_level_child != "\n":
-                strings.append(top_level_child.strip())
-                strings.append("\n")
+        if self._input_is_fragment:
+            # Iterate head and body children
+            if self._parser.head:
+                curr = self._parser.head.child
+
+                while curr:
+                    if curr.is_element_node:
+                        element = Element(curr)
+                        strings.append(element.prettify(indent, max_line_length))
+                    elif curr.is_text_node:
+                        text = curr.text_content.strip()
+                        if text:
+                            strings.append(f"{text}\n")
+                    elif curr.is_comment_node:
+                        strings.append(f"<!-- {curr.comment_content} -->\n")
+
+                    curr = curr.next
+
+            if self._parser.body:
+                curr = self._parser.body.child
+
+                while curr:
+                    if curr.is_element_node:
+                        element = Element(curr)
+                        strings.append(element.prettify(indent, max_line_length))
+                    elif curr.is_text_node:
+                        text = curr.text_content.strip()
+                        if text:
+                            strings.append(f"{text}\n")
+                    elif curr.is_comment_node:
+                        strings.append(f"<!-- {curr.comment_content} -->\n")
+
+                    curr = curr.next
+        else:
+            curr = self._parser.root.parent.child
+
+            while curr:
+                if curr.tag == "-doctype":
+                    strings.append("<!DOCTYPE html>\n")
+                elif curr.tag == "html":
+                    element = Element(curr)
+                    strings.append(element.prettify(indent, max_line_length))
+                elif curr.is_comment_node:
+                    strings.append(f"<!-- {curr.comment_content} -->\n")
+
+                curr = curr.next
 
         return "".join(strings)
 
     @property
     def root_element(self) -> Optional[Element]:
         """Gets the root `Element` for the HTML."""
+        if self._input_is_fragment:
+            # Check head first (e.g. link, meta tags)
+            if self._parser.head:
+                curr = self._parser.head.child
+                while curr:
+                    if curr.is_element_node:
+                        return Element(curr)
+                    curr = curr.next
 
-        for _element in self._soup.contents:
-            if isinstance(_element, bs4.element.Tag) and _element.name:
-                return Element.convert_from_tag(self._soup, _element)
+            # Check body
+            if self._parser.body:
+                curr = self._parser.body.child
+                while curr:
+                    if curr.is_element_node:
+                        return Element(curr)
+                    curr = curr.next
 
-        return None
+            return None
+
+        return Element(self._parser.root)
 
     @property
     def elements(self) -> Iterator[Element]:
         """Recursively yield all `Element`s in the HTML."""
+        for node in self._parser.css("*"):
+            if self._input_is_fragment and node.tag in ("html", "head", "body"):
+                continue
 
-        for _element in self._soup.descendants:
-            if isinstance(_element, bs4.element.Tag) and _element.name:
-                yield Element.convert_from_tag(self._soup, _element)
+            yield Element(node)
 
     def __str__(self):
-        # Cleans up `BeautifulSoup` modifications
-        self._soup.smooth()
+        if self._input_is_fragment:
+            return self._serialize_fragment()
+        return self._parser.html
 
-        # Prevent `BeautifulSoup` from re-ordering attributes in alphabetical order
-        return self._soup.encode(formatter=UnsortedAttributes()).decode()
+    def _serialize_fragment(self) -> str:
+        """Serialize as a fragment, skipping html/head/body wrappers."""
+        output = []
+
+        # Traverse Document children
+        # If html node -> traverse its children (Head, Body)
+        # Else -> append node.html
+
+        curr = self._parser.root.parent.child
+        while curr:
+            if curr.tag == "html":
+                # Check head
+                if self._parser.head:
+                    head_child = self._parser.head.child
+                    while head_child:
+                        output.append(head_child.html)
+                        head_child = head_child.next
+
+                # Check body
+                if self._parser.body:
+                    body_child = self._parser.body.child
+                    while body_child:
+                        output.append(body_child.html)
+                        body_child = body_child.next
+            else:
+                if curr.is_comment_node:
+                    output.append(f"<!-- {curr.comment_content} -->")
+                elif curr.tag == "-doctype":
+                    output.append(curr.html)
+                else:
+                    output.append(curr.html)
+
+            curr = curr.next
+
+        return "".join(output)
 
     def __repr__(self):
         return self.__str__()
+
+    @staticmethod
+    def _is_fragment(html: str) -> bool:
+        """Heuristic to detect if input is a fragment or full document."""
+        # Create a working copy to strip content from to check for start
+        text = html.lstrip()
+
+        # Iteratively strip comments from the start
+        while True:
+            if text.startswith("<!--"):
+                end_idx = text.find("-->")
+                if end_idx != -1:
+                    text = text[end_idx + 3 :].lstrip()
+                    continue
+            break
+
+        if re.match(r"^<(html|body|!DOCTYPE)(?=(\s|>))", text, re.IGNORECASE):
+            return False
+
+        return True

@@ -1,4 +1,3 @@
-import bs4
 import pytest
 
 from minestrone import HTML, Element
@@ -230,26 +229,6 @@ def test_element_parent_none(html_doc: HTML):
     assert html_doc.root_element.parent.parent is None
 
 
-def test_create_without_soup():
-    span = Element.create(
-        "span",
-    )
-
-    assert span._soup
-
-
-def test_create_with_soup():
-    soup = bs4.BeautifulSoup()
-
-    span = Element.create(
-        "span",
-        soup=soup,
-    )
-
-    assert span._soup
-    assert id(span._soup) == id(soup)
-
-
 def test_repr():
     span = Element.create(
         "span",
@@ -277,9 +256,9 @@ def test_tag_string_with_attributes(html_doc):
 
 
 def test_tag_string_with_list_attributes():
-    tillie = HTML('<link rel="shortcut icon" href="favicon.ico"></link>').root_element
-
     expected = '<link rel="shortcut icon" href="favicon.ico">'
+
+    tillie = HTML('<link rel="shortcut icon" href="favicon.ico"></link>').root_element
     actual = tillie.tag_string
 
     assert actual == expected
