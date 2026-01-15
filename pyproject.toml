@@ -38,10 +38,12 @@ dev = [
     "ruff",
     "pytest-benchmark>=4.0.0",
     "parsel",
+    "typeguard",
+    "toml",
 ]
 
 [tool.pytest]
-addopts = ["--quiet", "--failed-first", "-p", "no:warnings", "--benchmark-skip"]
+addopts = ["--quiet", "--failed-first", "-p", "no:warnings", "--benchmark-skip", "--typeguard-packages=minestrone"]
 testpaths = ["tests"]
 
 [tool.ruff]

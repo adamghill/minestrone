@@ -1,10 +1,15 @@
+from typing import TYPE_CHECKING
+
 import pytest
 
-from minestrone import HTML
+if TYPE_CHECKING:
+    from minestrone import HTML
 
 
 @pytest.fixture
-def html_doc(html_doc_str) -> HTML:
+def html_doc(html_doc_str) -> "HTML":
+    from minestrone import HTML
+
     return HTML(html_doc_str)
 
 
@@ -15,7 +20,9 @@ def html_doc_str() -> str:
 
 
 @pytest.fixture
-def html_fragment(html_fragment_str) -> HTML:
+def html_fragment(html_fragment_str) -> "HTML":
+    from minestrone import HTML
+
     return HTML(html_fragment_str)
 
 
@@ -26,7 +33,9 @@ def html_fragment_str() -> str:
 
 
 @pytest.fixture
-def html_unicorn_fragment(html_unicorn_fragment_str) -> HTML:
+def html_unicorn_fragment(html_unicorn_fragment_str) -> "HTML":
+    from minestrone import HTML
+
     return HTML(html_unicorn_fragment_str)
 
 

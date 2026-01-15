@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 
 from minestrone.element import VOID_ELEMENTS, Element
 
@@ -9,17 +9,17 @@ def prettify_element(
     max_line_length: Optional[int],
     spaces: str = "",
 ) -> str:
-    def __increase_spaces(_spaces):
+    def __increase_spaces(_spaces: str) -> str:
         return " " * (len(_spaces) + indent)
 
-    def __decrease_spaces(_spaces):
+    def __decrease_spaces(_spaces: str) -> str:
         return " " * (len(_spaces) - indent)
 
-    def __append_newline_if_needed(_strings):
+    def __append_newline_if_needed(_strings: List[str]) -> None:
         if _strings and not _strings[-1].endswith("\n"):
             _strings.append("\n")
 
-    def __append_string(_strings, _string):
+    def __append_string(_strings: List[str], _string: Optional[str]) -> None:
         if _string:
             _strings.append(_string)
 

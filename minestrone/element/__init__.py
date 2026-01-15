@@ -12,7 +12,7 @@ class Content:
 
     def _convert_attributes(self, attributes: Dict) -> Dict:
         """Convert attributes to be compatible with `selectolax`."""
-        new_attributes = {}
+        new_attributes: Dict[str, str] = {}
 
         for k, v in attributes.items():
             if k == "class" or k == "klass" or k == "css":
@@ -49,6 +49,8 @@ class Content:
             element = Element.create(name, text, **kwargs)
             self._node.insert_after(element._node)
             inserted = self._node.next
+            if not inserted:
+                raise Exception("Could not find inserted element")
             return Element(inserted)
 
     def prepend(
@@ -70,6 +72,8 @@ class Content:
             element = Element.create(name, text, **kwargs)
             self._node.insert_before(element._node)
             inserted = self._node.prev
+            if not inserted:
+                raise Exception("Could not find inserted element")
             return Element(inserted)
 
 
@@ -78,10 +82,10 @@ class Text(Content):
         """Initialize Text."""
         self._node = node
 
-    def __str__(self):
-        return self._node.text_content
+    def __str__(self) -> str:
+        return self._node.text_content or ""
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.__str__()
 
 
@@ -99,6 +103,10 @@ class Element(Content):
         """Create a detached `Element`."""
         html = f"<{name}></{name}>"
         parser = LexborHTMLParser(html)
+
+        if not parser.body or not parser.body.child:
+            raise Exception(f"Could not create element {name}")
+
         node = parser.body.child
 
         if text:
@@ -115,7 +123,7 @@ class Element(Content):
     @property
     def name(self) -> str:
         """Get the tag name."""
-        return self._node.tag
+        return self._node.tag or ""
 
     @property
     def id(self) -> Optional[str]:
@@ -133,7 +141,7 @@ class Element(Content):
         return dict(self._node.attrs)
 
     @attributes.setter
-    def attributes(self, value: Dict):
+    def attributes(self, value: Dict) -> None:
         """Set the element attributes."""
         for k in list(self._node.attrs.keys()):
             del self._node.attrs[k]
@@ -255,16 +263,16 @@ class Element(Content):
         """Create a new tag."""
         return Element.create(name, text, **kwargs)
 
-    def prettify(self, indent: int = 2, max_line_length: Optional[int] = 88):
+    def prettify(self, indent: int = 2, max_line_length: Optional[int] = 88) -> str:
         """Prettify the element."""
         from minestrone.element.prettifier import prettify_element
 
         return prettify_element(self, indent, max_line_length)
 
-    def __str__(self):
-        return self._node.html
+    def __str__(self) -> str:
+        return self._node.html or ""
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.__str__()
 
 

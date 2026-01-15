@@ -18,12 +18,14 @@ __all__ = [
 class HTML:
     encoding: Optional[str] = "utf-8"
     _input_is_fragment: bool = False
+    html: str
+    _parser: LexborHTMLParser
 
     def __init__(
         self,
         html: Union[str, bytes, "HTML"],
         encoding: Optional[str] = None,
-    ):
+    ) -> None:
         """Analyze, search, and modify HTML."""
 
         if isinstance(html, HTML):
@@ -74,7 +76,8 @@ class HTML:
                         element = Element(curr)
                         strings.append(element.prettify(indent, max_line_length))
                     elif curr.is_text_node:
-                        text = curr.text_content.strip()
+                        text_content = curr.text_content
+                        text = text_content.strip() if text_content else ""
                         if text:
                             strings.append(f"{text}\n")
                     elif curr.is_comment_node:
@@ -90,7 +93,8 @@ class HTML:
                         element = Element(curr)
                         strings.append(element.prettify(indent, max_line_length))
                     elif curr.is_text_node:
-                        text = curr.text_content.strip()
+                        text_content = curr.text_content
+                        text = text_content.strip() if text_content else ""
                         if text:
                             strings.append(f"{text}\n")
                     elif curr.is_comment_node:
@@ -98,7 +102,10 @@ class HTML:
 
                     curr = curr.next
         else:
-            curr = self._parser.root.parent.child
+            if self._parser.root and self._parser.root.parent:
+                curr = self._parser.root.parent.child
+            else:
+                curr = None
 
             while curr:
                 if curr.tag == "-doctype":
@@ -135,6 +142,9 @@ class HTML:
 
             return None
 
+        if not self._parser.root:
+            return None
+
         return Element(self._parser.root)
 
     @property
@@ -146,10 +156,10 @@ class HTML:
 
             yield Element(node)
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self._input_is_fragment:
             return self._serialize_fragment()
-        return self._parser.html
+        return self._parser.html or ""
 
     def _serialize_fragment(self) -> str:
         """Serialize as a fragment, skipping html/head/body wrappers."""
@@ -157,9 +167,10 @@ class HTML:
 
         # Traverse Document children
         # If html node -> traverse its children (Head, Body)
-        # Else -> append node.html
-
-        curr = self._parser.root.parent.child
+        if self._parser.root and self._parser.root.parent:
+            curr = self._parser.root.parent.child
+        else:
+            curr = None
         while curr:
             if curr.tag == "html":
                 # Check head
@@ -187,7 +198,7 @@ class HTML:
 
         return "".join(output)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.__str__()
 
     @staticmethod

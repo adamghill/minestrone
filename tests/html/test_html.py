@@ -65,7 +65,7 @@ def test_html_html_strings(html_fragment):
 
 def test_html_wrong_type():
     with pytest.raises(Exception):
-        HTML(1)  # noqa: F405
+        HTML(1)  # type: ignore[invalid-argument-type] # noqa: F405
 
 
 def test_html_repr(html_fragment):

@@ -119,7 +119,7 @@ def test_selectolax(benchmark):
 
 
 def test_markupever(benchmark):
-    import markupever
+    import markupever  # type: ignore[unresolved-import]
 
     def _():
         doc = markupever.parse(HTML_FRAGMENT)

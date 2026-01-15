@@ -259,6 +259,7 @@ def test_tag_string_with_list_attributes():
     expected = '<link rel="shortcut icon" href="favicon.ico">'
 
     tillie = HTML('<link rel="shortcut icon" href="favicon.ico"></link>').root_element
+    assert tillie
     actual = tillie.tag_string
 
     assert actual == expected
