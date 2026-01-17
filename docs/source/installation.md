@@ -1,17 +1,13 @@
 # Installation
 
-To use `minestrone`, first install it using `poetry`:
+To use `minestrone`, first install it using `uv`:
 
 ```shell
-poetry add minestrone
+uv add minestrone
 ```
 
 OR install it using `pip`:
 
 ```shell
 pip install minestrone
-```
-
-```{note}
-`minestrone[lxml]` or `minestrone[html5]` can be installed to include support for external HTML parsers. More information in [parsing](parsing.md).
 ```

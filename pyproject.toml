@@ -37,7 +37,6 @@ dev = [
     "pytest-cov>=3",
     "ruff",
     "pytest-benchmark>=4.0.0",
-    "parsel",
     "typeguard",
     "toml",
 ]

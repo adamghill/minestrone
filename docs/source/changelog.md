@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.9.0
+
+- Switch to `selectolax` for parsing.
+
+### Breaking Changes
+
+- `HTML` no longer has a `parser` parameter.
+
 ## 0.8.0
 
 - Add `Element.insert` and `Element.remove_children`.

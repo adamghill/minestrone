@@ -1,11 +1,11 @@
 import toml
 
 project = "minestrone"
-copyright = "2021, Adam Hill"
+copyright = "2026, Adam Hill"
 author = "Adam Hill"
 
 pyproject = toml.load("../../pyproject.toml")
-version = pyproject["tool"]["poetry"]["version"]
+version = pyproject["project"]["version"]
 release = version
 
 # -- General configuration

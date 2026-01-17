@@ -1,10 +1,6 @@
 # Querying
 
-`minestrone` allows searching through HTML via CSS selectors (similar to JQuery or other frontend libraries).
-
-```{note}
-Querying uses the [`select`](https://www.crummy.com/software/BeautifulSoup/bs4/doc/#css-selectors) method in `Beautiful Soup` which delegates to `SoupSieve`. More details about `SoupSieve` is available in [their documentation](https://facelessuser.github.io/soupsieve/).
-```
+`minestrone` allows searching through HTML via CSS selectors (similar to jQuery or other frontend libraries).
 
 ## root_element
 
