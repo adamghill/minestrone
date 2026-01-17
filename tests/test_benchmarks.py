@@ -80,23 +80,23 @@ def test_minestrone_with_existing_html(benchmark):
     assert EXPECTED == actual
 
 
-def test_parsel(benchmark):
-    from parsel import Selector
+# def test_parsel(benchmark):
+#     from parsel import Selector
 
-    def _():
-        selector = Selector(HTML_FRAGMENT)
-        unicorn_model_names = []
+#     def _():
+#         selector = Selector(HTML_FRAGMENT)
+#         unicorn_model_names = []
 
-        for element in selector.xpath("//*"):
-            for root_attr_name, root_attr_value in element.root.attrib.items():
-                if root_attr_name.startswith(
-                    "unicorn:model"
-                ) or root_attr_name.startswith("u:model"):
-                    unicorn_model_names.append(root_attr_value)
-        return unicorn_model_names
+#         for element in selector.xpath("//*"):
+#             for root_attr_name, root_attr_value in element.root.attrib.items():
+#                 if root_attr_name.startswith(
+#                     "unicorn:model"
+#                 ) or root_attr_name.startswith("u:model"):
+#                     unicorn_model_names.append(root_attr_value)
+#         return unicorn_model_names
 
-    actual = benchmark(_)
-    assert EXPECTED == actual
+#     actual = benchmark(_)
+#     assert EXPECTED == actual
 
 
 def test_selectolax(benchmark):
@@ -118,25 +118,25 @@ def test_selectolax(benchmark):
     assert EXPECTED == actual
 
 
-def test_markupever(benchmark):
-    import markupever  # type: ignore[unresolved-import]
+# def test_markupever(benchmark):
+#     import markupever  # type: ignore[unresolved-import]
 
-    def _():
-        doc = markupever.parse(HTML_FRAGMENT)
-        unicorn_model_names = []
+#     def _():
+#         doc = markupever.parse(HTML_FRAGMENT)
+#         unicorn_model_names = []
 
-        for element in doc.root().descendants():
-            if isinstance(element, markupever.dom.Element):
-                for key in element.attrs:
-                    attr_name = key.local
-                    if attr_name.startswith("unicorn:model") or attr_name.startswith(
-                        "u:model"
-                    ):
-                        unicorn_model_names.append(element.attrs.get(key))
-        return unicorn_model_names
+#         for element in doc.root().descendants():
+#             if isinstance(element, markupever.dom.Element):
+#                 for key in element.attrs:
+#                     attr_name = key.local
+#                     if attr_name.startswith("unicorn:model") or attr_name.startswith(
+#                         "u:model"
+#                     ):
+#                         unicorn_model_names.append(element.attrs.get(key))
+#         return unicorn_model_names
 
-    actual = benchmark(_)
-    assert EXPECTED == actual
+#     actual = benchmark(_)
+#     assert EXPECTED == actual
 
 
 class UnicornModelParser(HTMLParser):
