@@ -17,17 +17,6 @@ Repository = "https://github.com/adamghill/minestrone/"
 Documentation = "http://minestrone.readthedocs.io/"
 Funding = "https://github.com/sponsors/adamghill"
 
-[project.optional-dependencies]
-docs = [
-    "Sphinx>=4.3.2",
-    "linkify-it-py>=1.0.3",
-    "myst-parser>=0.16.1",
-    "furo>=2021.11.23",
-    "sphinx-copybutton>=0.4.0",
-    "attrs>=21.4.0",
-    "toml",
-]
-
 [dependency-groups]
 dev = [
     "pytest>=6",
@@ -38,6 +27,15 @@ dev = [
     "ruff",
     "pytest-benchmark>=4.0.0",
     "typeguard",
+    "toml",
+]
+docs = [
+    "Sphinx>=4.3.2",
+    "linkify-it-py>=1.0.3",
+    "myst-parser>=0.16.1",
+    "furo>=2021.11.23",
+    "sphinx-copybutton>=0.4.0",
+    "attrs>=21.4.0",
     "toml",
 ]
 
