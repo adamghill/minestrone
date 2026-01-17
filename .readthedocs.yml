@@ -1,3 +1,6 @@
+# .readthedocs.yaml
+# Read the Docs configuration file
+# See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
 version: 2
 
 sphinx:
@@ -5,14 +8,20 @@ sphinx:
   fail_on_warning: true
   builder: dirhtml
 
-formats:
-  - pdf
-  - epub
-
-python:
-  version: 3
-  install:
-    - method: pip
-      path: .
-      extra_requirements:
-        - docs
+build:
+  os: ubuntu-lts-latest
+  tools:
+    python: latest
+  jobs:
+    pre_create_environment:
+      - asdf plugin add uv
+      - asdf install uv latest
+      - asdf global uv latest
+    create_environment:
+      - uv venv $READTHEDOCS_VIRTUALENV_PATH
+    install:
+      # Use a cache dir in the same mount to halve the install time
+      - VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH uv sync --cache-dir $READTHEDOCS_VIRTUALENV_PATH/../../uv_cache --group docs
+    build:
+      html:
+        - uv run sphinx-build -T -b dirhtml docs/source $READTHEDOCS_OUTPUT/html
